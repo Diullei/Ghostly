@@ -5,7 +5,7 @@ Under construction.
 
 Example:
 
-```scharp
+```csharp
 using Ghostly;
 
 namespace Example
