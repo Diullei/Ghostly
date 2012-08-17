@@ -6,6 +6,7 @@ namespace Example
     {
         static void Main(string[] args)
         {
+            // Exemple #1
             var browser = new Browser();
 
             browser.Route.Interceptors.Add("http://localhost:100/", 
@@ -16,18 +17,19 @@ namespace Example
                     Body = @"
                         <!DOCTYPE HTML>
                         <html lang=""en-US"">
-                        <head>
-	                        <meta charset=""UTF-8"">
-	                        <title></title>
-                        </head>
-                        <body>
-	                        <div id=""ghostly"">Ghostly - C# Headless Browser!</div>
-                        </body>
+	                        <head>
+		                        <meta charset=""UTF-8"">
+		                        <title></title>
+	                        </head>
+	                        <body>
+		                        <div id=""ghostly"">Ghostly - C# Headless Browser!</div>
+	                        </body>
                         </html>"
                 });
 
             browser.Visit("http://localhost:100/", null, () =>
             {
+                var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
                 var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
                 var html2 = browser.Window.document.getElementById("ghostly").innerHTML;
 

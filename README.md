@@ -31,7 +31,9 @@ class Program
 
 		browser.Visit("http://localhost:100/", null, () =>
 		{
+			// using ExecScript method
 			var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
+			// using dynamic objects
 			var html2 = browser.Window.document.getElementById("ghostly").innerHTML;
 
 			browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");

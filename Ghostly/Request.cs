@@ -33,6 +33,8 @@ namespace Ghostly
                         i =>
                         i.Key == string.Format("http://{0}{1}{2}", _hostname, (_port == 80 ? "" : ":" + _port), _path))
                         .First().Value.Invoke();
+                // TODO-BUG
+                route.Body = route.Body.Replace(System.Environment.NewLine, "");
             }
             else
             {
