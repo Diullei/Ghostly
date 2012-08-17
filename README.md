@@ -65,7 +65,7 @@ class Program
 
 ## License
 
-Ghostly is distributed under the MIT license. [See license file here](https://github.com/Diullei/Ghostly/LICENSE.txt) or below:
+Ghostly is distributed under the MIT license. [See license file here](https://raw.github.com/Diullei/Ghostly/master/LICENSE.txt) or below:
 
 Copyright (c) 2012 by Diullei Gomes
 
