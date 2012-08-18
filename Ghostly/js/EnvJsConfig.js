@@ -70,7 +70,8 @@ function __extend__(a,b) {
 //var $print = require('sys').print;
 
 Envjs.log = function(msg){
-    console.log(msg+'\n\n');
+    //console.log(msg+'\n\n');
+    $___global___.ConsoleLog(msg+'\n\n');
 };
 
 Envjs.lineSource = function(e){
@@ -195,7 +196,7 @@ Envjs.getcwd = function() {
  * @param {Object} text
  * @param {Object} url
  */
-Envjs.writeToFile = function(text, url){
+Envjs.writeToFile = function(text, url){ colsole.log('Envjs.writeToFile');
 	if(/^file\:\/\//.test(url))
 		url = url.substring(7,url.length);
     filesystem.writeFileSync(url, text, 'utf8');
@@ -206,7 +207,7 @@ Envjs.writeToFile = function(text, url){
  * @param {Object} text
  * @param {Object} suffix
  */
-Envjs.writeToTempFile = function(text, suffix){
+Envjs.writeToTempFile = function(text, suffix){ colsole.log('Envjs.writeToTempFile');
 	var url =  Envjs.tmpdir+'envjs-'+(new Date().getTime())+'.'+suffix;
 	if(/^file\:\/\//.test(url))
 		url = url.substring(7,url.length);
@@ -219,7 +220,7 @@ Envjs.writeToTempFile = function(text, suffix){
  * Used to read the contents of a local file
  * @param {Object} url
  */
-Envjs.readFromFile = function( url ){
+Envjs.readFromFile = function( url ){ colsole.log('Envjs.readFromFile');
 	if(/^file\:\/\//.test(url))
 		url = url.substring(7,url.length);
     return filesystem.readFileSync(url, 'utf8');
@@ -230,7 +231,7 @@ Envjs.readFromFile = function( url ){
  * Used to delete a local file
  * @param {Object} url
  */
-Envjs.deleteFile = function(url){
+Envjs.deleteFile = function(url){ colsole.log('Envjs.deleteFile');
 	if(/^file\:\/\//.test(url))
 		url = url.substring(7,url.length);
     filesystem.unlink(url);

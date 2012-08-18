@@ -32,7 +32,7 @@ namespace Ghostly
             Test = new TestSuite();
             Route = new Route();
             Vm = new V8JsVM();
-            Vm.SetParameter("$___http___", new Http(Route));
+            //Vm.SetParameter("$___http___", new Http(Route));
         }
 
         private void Init()

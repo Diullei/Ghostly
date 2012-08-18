@@ -2,9 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Ghostly
 {
+    public class Fs
+    {
+
+    }
+
     public class Ghostly
     {
         public class Process
@@ -21,6 +27,24 @@ namespace Ghostly
 
             public Process(string[] args, IJsVM jsVm)
             {
+                _natives_exports["events"] = Util.GetResource("events");
+                _natives_exports["domain"] = Util.GetResource("domain");
+                _natives_exports["buffer"] = Util.GetResource("buffer");
+                _natives_exports["assert"] = Util.GetResource("assert");
+                _natives_exports["util"] = Util.GetResource("util");
+                _natives_exports["module"] = Util.GetResource("module");
+                _natives_exports["path"] = Util.GetResource("path");
+                _natives_exports["tty"] = Util.GetResource("tty");
+                _natives_exports["url"] = Util.GetResource("url");
+                _natives_exports["punycode"] = Util.GetResource("punycode");
+                _natives_exports["querystring"] = Util.GetResource("querystring");
+
+                _natives_exports["fs"] = "";
+                _natives_exports["http"] = "";
+                _natives_exports["https"] = "";
+                _natives_exports["request"] = "";
+                _natives_exports["http_parser"] = "exports.urlDecode = {}";
+
                 _args = args;
                 _jsVm = jsVm;
                 _ghostlyScript = new GhostlyScript(_jsVm);
@@ -120,7 +144,11 @@ namespace Ghostly
 
             private GhostlyScript _ghostlyScript;
 
+            //public Dictionary<string, object> global_exports = new Dictionary<string, object>();
+
             private Dictionary<string, object> _binding_cache = new Dictionary<string, object>();
+
+            private Dictionary<string, object> _natives_exports = new Dictionary<string, object>();
 
             public object binding(string args)
             {
@@ -152,22 +180,134 @@ namespace Ghostly
 
                 if (args == "natives")
                 {
-                    var exports = new Dictionary<string, object>();
+                    return _natives_exports;
+                }
 
-                    exports["events"] = Util.GetResource("events");
-                    exports["domain"] = Util.GetResource("domain");
-                    exports["buffer"] = Util.GetResource("buffer");
-                    exports["assert"] = Util.GetResource("assert");
-                    exports["util"] = Util.GetResource("util");
-                    exports["module"] = Util.GetResource("module");
-                    exports["path"] = Util.GetResource("path");
-                    exports["tty"] = Util.GetResource("tty");
-
-                    return exports;
+                if (_natives_exports.ContainsKey(args))
+                {
+                    return _natives_exports[args];
                 }
 
                 throw new Exception("No such module: " + args);
             }
+
+            private List<string> _requiredCache = new List<string>();
+
+            public string getRealPath(string id, string dir)
+            {
+                if (id == "cssom")
+                    return "cssom";
+
+                string path = null;
+
+                if (id.StartsWith(".\\") || id.StartsWith("./"))
+                {
+                    path = dir + id.Substring(1);
+                }
+                else if (id.StartsWith("..\\") || id.StartsWith("../"))
+                {
+                    path = dir + "\\" + id;
+                }
+                else
+                {
+                    var currentDirectory = Environment.CurrentDirectory;
+                    path = Path.Combine(currentDirectory, id);
+                }
+
+                if (!File.Exists(path))
+                {
+                    path += ".js";
+                    if (!File.Exists(path))
+                    {
+                        throw new Exception("Invalid require to inexistent file: " + path);
+                    }
+                }
+
+                var fileInfo = new FileInfo(path);
+                return fileInfo.FullName;
+            }
+
+            public object require(string id, string dir)
+            {
+                if (id == "cssom")
+                    return new { source = "", filename = "cssim", dirname = "" };
+
+                if (_natives_exports.ContainsKey(id))
+                {
+                    return _natives_exports[id];
+                }
+
+                //Console.WriteLine(string.Format("[id] {0}; [dir] {1}", id, dir));
+                Console.WriteLine(string.Format("[id] {0}", id));
+
+                string path = null;
+
+                if (id.StartsWith(".\\") || id.StartsWith("./"))
+                {
+                    path = dir + id.Substring(1);
+                }
+                else if (id.StartsWith("..\\") || id.StartsWith("../"))
+                {
+                    path = dir + "\\" + id;
+                }
+                else
+                {
+                    var currentDirectory = Environment.CurrentDirectory;
+                    path = Path.Combine(currentDirectory, id);
+                }
+
+                //path = ReducePath(path);
+
+                if (!File.Exists(path))
+                {
+                    path += ".js";
+                    if (!File.Exists(path))
+                    {
+                        throw new Exception("Invalid require to inexistent file: " + path);
+                    }
+                }
+
+                var fileInfo = new FileInfo(path);
+                path = fileInfo.FullName;
+
+                //if (_requiredCache.Select(s => s.ToUpper()).Contains(path.ToUpper()))
+                //    return true;
+
+                _requiredCache.Add(path);
+
+                return new { source = File.ReadAllText(path), filename = Path.GetFileName(path), dirname = Path.GetDirectoryName(path) };
+            }
+
+            public void console(string value)
+            {
+                Console.WriteLine(value);
+            }
+        }
+
+        private static string ReducePath(string path)
+        {
+            var index = 0;
+            var array = path.Split(new char[] {'\\', '/'}).ToList();
+            while ((path.IndexOf("/../") != -1) && (path.IndexOf("\\..\\") != -1))
+            {
+                if (index >= array.Count)
+                    continue;
+
+                if(array[index] == "..")
+                {
+                    array.RemoveAt(index);
+                    array.RemoveAt(index - 1);
+
+                    index--;
+                    index--;
+                }
+                else
+                    index++;
+
+                path = string.Join("\\", array);
+            }
+
+            return path;
         }
 
         private readonly IJsVM _jsVm;

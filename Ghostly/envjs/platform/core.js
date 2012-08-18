@@ -42,8 +42,9 @@ var log = {
     exception: function(){return this;}
 };
 
-try{
-	console = console;
+try {
+    //console = require('envjs/console').console;
+    console = console;
 }catch(e){ 
 	console = require('envjs/console').console;
 }

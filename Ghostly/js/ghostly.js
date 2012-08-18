@@ -641,7 +641,7 @@
     NativeModule._source = process.binding('natives');
     NativeModule._cache = {};
 
-    NativeModule.require = function (id, fn) {
+    NativeModule.require = function (id) {
         if (id == 'native_module') {
             return NativeModule;
         }
@@ -652,8 +652,6 @@
         }
 
         if (!NativeModule.exists(id)) {
-            if (typeof fn == 'function')
-                return fn(id);
             throw new Error('No such native module ' + id);
         }
 
@@ -707,3 +705,165 @@
 
     process.NativeModule = NativeModule;
 })(process);
+
+//this.exports = {};
+//var self_exports = this.exports;
+
+function __merge__(obj1, obj2) {
+    for (var prop in obj2) {
+        if (typeof obj2[prop] == 'object') {
+            if (typeof obj1[prop] != 'object') {
+                obj1[prop] = {};
+            }
+            //__merge__(obj1[prop], obj2[prop]);
+        }
+        obj1[prop] = obj2[prop];
+    }
+}
+
+function __clone__(obj1, obj2) {
+    for (var prop in obj2) {
+        if (typeof obj2[prop] == 'object') {
+            obj1[prop] = {};
+            __clone__(obj1[prop], obj2[prop]);
+        } else {
+            obj1[prop] = obj2[prop];
+        }
+    }
+}
+
+//var console = { log: function (value) { process.console(value); } }
+
+(function (root) { 
+
+    function ModuleLoader(id, dir) {
+        this.filename = id + '.js';
+        this.id = id;
+        this.dir = dir;
+        this.fullId = process.getRealPath(id, dir);
+        this.exports = {};
+        this.loaded = false;
+    }
+
+    ModuleLoader._cache = {};
+
+    ModuleLoader.require = function (id, dir) {
+        var key = process.getRealPath(id, dir);
+        //process.console('key: ' + key);
+        var cached = ModuleLoader.getCached(key);
+        if (cached) {
+            return cached.exports;
+        }
+
+        var module = new ModuleLoader(id, dir);
+
+        module.compile();
+        module.cache();
+
+        return module.exports;
+    }
+
+    ModuleLoader.getCached = function (id) {
+        return ModuleLoader._cache[id];
+    }
+
+    ModuleLoader.wrapper = [
+        '(function (exports, require, module, __filename, __dirname) { ',
+        '\n});'
+    ];
+
+    ModuleLoader.getSource = function (id, dir) {
+        return process.require(id, dir);
+    }
+
+    ModuleLoader.wrap = function (script) {
+        return ModuleLoader.wrapper[0] + script + ModuleLoader.wrapper[1];
+    };
+
+    ModuleLoader.prototype.compile = function () {
+        var required = ModuleLoader.getSource(this.id, this.dir);
+        this.dir = required.dirname;
+        source = ModuleLoader.wrap(required.source);
+        eval(source)(
+            this.exports, 
+            //function (id) { return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id); }, 
+            function(id){ 
+                try {
+                    //process.console(id);
+                    return process.NativeModule.require(id);
+                } catch (e) {
+                    //process.console(id + ' -- ' + e.message);
+                    return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id);
+                }
+            },
+            this, 
+            this.filename);
+
+        this.loaded = true;
+    };
+
+    ModuleLoader.prototype.cache = function () {
+        //process.console('caching: ' + this.fullId);
+        ModuleLoader._cache[this.fullId] = this;
+    };
+
+    root.require = function(id, dir){ 
+        try {
+            return process.NativeModule.require(id);
+        } catch (e) {
+            process.console(e.message);
+            return (function(id, dir){ return ModuleLoader.require(id, dir); }).call({}, id, dir);
+        }
+    };
+
+})(this);
+
+/*
+(function (root) {
+    var __cache__ = {};
+    root.console = { log: function (value) { process.console(value); } }
+
+    root.require = function (id, dir) {
+        //if(__cache__[required.filename + '\\' + required.dirname])
+        //   return  exports;
+
+        try {
+            return process.NativeModule.require(id);
+        } catch (e) {
+            process.console('error: ' + e.message);
+
+            var exports = {};
+            //__clone__(bk_exports, exports);
+            var module = { exports: exports };
+
+            var required = process.require(id, dir);
+
+            if (required === true) {
+                process.console(' <-- ');
+                return process.global_exports;
+            }
+
+            var source = root.process.NativeModule.wrap(required.source);
+            //__cache__[required.filename + '\\' + required.dirname] = true;
+            //var fn = runInThisContext(source, '', true);
+            eval(source)(
+                bk_exports,
+                function (id) { return (function (id) { return root.require(id, this.dirname); }).call(required, id); },
+                module,
+                required.filename,
+                required.dirname);
+            //process.console(id + ' - ' + exports);
+
+            __merge__(process.global_exports, bk_exports);
+
+            try {
+                process.console(process.global_exports.dom.level2 == null ? 'não' : process.global_exports.dom.level2);
+            } catch (e) {
+                process.console('não!');
+            }
+
+            return process.global_exports;
+        }
+    }
+})(this);
+*/

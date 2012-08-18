@@ -11,10 +11,10 @@ namespace Ghostly
         public V8JsVM()
         {
             _context = new JavascriptContext();
-            //new Ghostly(this).SetupProcessObject(this, new string[]{""});
-            //_context.Run(Util.GetResource("ghostly"));
-            _context.SetParameter("$___global___", new GlobalObjects(this));
-            _context.Run(Util.GetResource("GlobalObjectsConfig"));
+            new Ghostly(this).SetupProcessObject(this, new string[]{""});
+            _context.Run(Util.GetResource("ghostly"));
+            //_context.SetParameter("$___global___", new GlobalObjects(this));
+            //_context.Run(Util.GetResource("GlobalObjectsConfig"));
         }
 
         public void SetParameter(string name, object value)
