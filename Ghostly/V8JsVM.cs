@@ -4,11 +4,11 @@ using Noesis.Javascript;
 
 namespace Ghostly
 {
-    public class V8JsVM : IJsVM, IDisposable
+    public class GhostlyJS : IGhostlyJS, IDisposable
     {
         private readonly JavascriptContext _context;
 
-        public V8JsVM()
+        public GhostlyJS()
         {
             _context = new JavascriptContext();
             new Ghostly(this).SetupProcessObject(this, new string[]{""});

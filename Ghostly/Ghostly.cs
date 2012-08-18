@@ -16,7 +16,7 @@ namespace Ghostly
         public class Process
         {
             private readonly string[] _args;
-            private readonly IJsVM _jsVm;
+            private readonly IGhostlyJS _jsVm;
 
             public class Env
             {
@@ -25,7 +25,7 @@ namespace Ghostly
                 public string LANG = Environment.OSVersion.Platform.ToString();
             }
 
-            public Process(string[] args, IJsVM jsVm)
+            public Process(string[] args, IGhostlyJS jsVm)
             {
                 _natives_exports["events"] = Util.GetResource("events");
                 _natives_exports["domain"] = Util.GetResource("domain");
@@ -310,14 +310,14 @@ namespace Ghostly
             return path;
         }
 
-        private readonly IJsVM _jsVm;
+        private readonly IGhostlyJS _jsVm;
 
-        public Ghostly(IJsVM jsVm)
+        public Ghostly(IGhostlyJS jsVm)
         {
             _jsVm = jsVm;
         }
 
-        public void SetupProcessObject(IJsVM jsVm, params string[] args)
+        public void SetupProcessObject(IGhostlyJS jsVm, params string[] args)
         {
             var process = new Process(args, jsVm);
             _jsVm.SetParameter("process", process);

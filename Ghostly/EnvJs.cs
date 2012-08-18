@@ -4,9 +4,9 @@ namespace Ghostly
 {
     public class EnvJs
     {
-        private readonly IJsVM _jsvm;
+        private readonly IGhostlyJS _jsvm;
 
-        public EnvJs(IJsVM jsvm)
+        public EnvJs(IGhostlyJS jsvm)
         {
             _jsvm = jsvm;
         }

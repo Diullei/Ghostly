@@ -8,7 +8,7 @@ namespace Ghostly
 {
     public class GlobalObjects
     {
-        private readonly IJsVM _jsvm;
+        private readonly IGhostlyJS _jsvm;
 
         private Dictionary<string, object> _requireCache;
 
@@ -52,7 +52,7 @@ namespace Ghostly
             }
         }
 
-        public GlobalObjects(IJsVM jsvm)
+        public GlobalObjects(IGhostlyJS jsvm)
         {
             _requireCache = new Dictionary<string, object>();
             _jsvm = jsvm;

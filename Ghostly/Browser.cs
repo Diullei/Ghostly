@@ -16,7 +16,7 @@ namespace Ghostly
         private Action _callback;
         private string _url;
 
-        private V8JsVM Vm { get; set; }
+        private GhostlyJS Vm { get; set; }
 
         public dynamic Window
         {
@@ -31,7 +31,7 @@ namespace Ghostly
         {
             Test = new TestSuite();
             Route = new Route();
-            Vm = new V8JsVM();
+            Vm = new GhostlyJS();
             //Vm.SetParameter("$___http___", new Http(Route));
         }
 

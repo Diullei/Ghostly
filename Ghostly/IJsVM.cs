@@ -1,6 +1,6 @@
 ﻿namespace Ghostly
 {
-    public interface IJsVM
+    public interface IGhostlyJS
     {
         void SetParameter(string name, object value);
         object GetParameter(string name);

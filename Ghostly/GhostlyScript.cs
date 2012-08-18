@@ -4,9 +4,9 @@ namespace Ghostly
 {
     public class GhostlyScript
     {
-        private readonly IJsVM _jsVm;
+        private readonly IGhostlyJS _jsVm;
 
-        public GhostlyScript(IJsVM jsVm)
+        public GhostlyScript(IGhostlyJS jsVm)
         {
             _jsVm = jsVm;
         }

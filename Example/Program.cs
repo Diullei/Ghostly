@@ -6,7 +6,7 @@ namespace Example
     {
         static void Main(string[] args)
         {
-            var vm = new V8JsVM();
+            var vm = new GhostlyJS();
 
             vm.Exec(@"
 var jsdom = require('jsdom/jsdom');

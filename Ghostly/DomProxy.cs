@@ -8,10 +8,10 @@ namespace Ghostly
 {
     public class DomProxy : DynamicObject
     {
-        private readonly IJsVM _jsVm;
+        private readonly IGhostlyJS _jsVm;
         private readonly string _ns;
 
-        public DomProxy(IJsVM jsVm, string @namespace)
+        public DomProxy(IGhostlyJS jsVm, string @namespace)
         {
             _jsVm = jsVm;
             _ns = @namespace;
