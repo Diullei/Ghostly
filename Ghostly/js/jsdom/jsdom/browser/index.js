@@ -20,7 +20,7 @@ var http          = require('http'),
 	var context = sandbox;
     var global = null;
 
-    sandbox.run = function(code, filename) { console.log(code);
+    sandbox.run = function(code, filename) { 
       //return vm.runInContext(code, context, filename);
 	  var module = {context: context};
 	  return eval('(function (exports, require, module, __filename, __dirname) { ' + code + '\n})')(context, require, module, filename);
@@ -331,24 +331,8 @@ exports.createWindow = function(dom, options) {
 */
 var defaultParser = null;
 function getDefaultParser() {
-  if (defaultParser === null) {
-    //try {
-      //defaultParser = require('../../jsdom/node-htmlparser');
-  //console.log(defaultParser);
-    /*}
-    catch (e) {
-      try {
-        defaultParser = require('node-htmlparser/lib/node-htmlparser');
-      }
-      catch (e2) {
-        defaultParser = undefined;
-      }
-    }*/
-  }
-
   var code = process.require('js/jsdom/jsdom/htmlparser', null).source;
   var _exp = eval( '(function (exports){' + code + '\n return exports; })({});'); 
-  //console.log(_exp);
   return _exp;
 }
 
@@ -368,7 +352,7 @@ var browserAugmentation = exports.browserAugmentation = function(dom, options) {
 
   // set up html parser - use a provided one or try and load from library
   var htmltodom = new HtmlToDom(options.parser || getDefaultParser());
-console.log('continua daqui!');
+
   if (!dom.HTMLDocument) {
     dom.HTMLDocument = dom.Document;
   }

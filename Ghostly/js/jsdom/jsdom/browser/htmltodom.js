@@ -110,7 +110,7 @@ function HtmlToDom(parser) {
       console.log('');
     };
 
-  } console.log('out!');
+  }
 };
 
 // utility function for forgiving parser

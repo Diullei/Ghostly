@@ -253,28 +253,12 @@
     //var queue = [];
 
     startup.processNextTick = function () {
-        /*
-        process.nextTick = function (fn) {
-        console.log(':nextTick');
-        queue.push(fn);
-        };
-
-        // later after the tick for I/O or timers returns back to the event loop root.
-        process.processNextTicks = function () {
-        console.log(':processNextTicks');
-        var fn
-        while (fn = queue.shift()) {
-        fn();
-        }
-        };*/
-
         var nextTickQueue = [];
         var nextTickIndex = 0;
         var inTick = false;
         var tickDepth = 0;
 
         process._needTickCallback = function () {
-            console.log(':_needTickCallback');
             var fn
             while (fn = nextTickQueue.shift()) {
                 fn.callback();
@@ -819,8 +803,39 @@
         try {
             return process.NativeModule.require(id);
         } catch (e) {
-            process.console(e.message);
             return (function(id, dir){ return ModuleLoader.require(id, dir); }).call({}, id, dir);
+        }
+    };
+
+    global.Log = {
+        level: 0,
+
+        NONE: 5,
+        DEBUG: 4,
+        INFO: 3,
+        WARN: 2,
+        ERROR: 1,
+        FATAL: 0,
+
+        CYAN: "\33[36m",
+        GREEN: "\33[32m",
+        YELLOW: "\33[33m",
+        MAGENTA: "\33[35m",
+        RED: "\33[31m",
+        DEFAULT: "\33[0m",
+
+        debug: function(value, force){ this.log.call(this, force ? 100 : this.level, this.DEBUG, value); },
+        info: function(value, force){ this.log.call(this, force ? 100 : this.level, this.INFO, value); },
+        warn: function(value, force){ this.log.call(this, force ? 100 : this.level, this.WARN, value); },
+        error: function(value, force){ this.log.call(this, force ? 100 : this.level, this.ERROR, value); },
+        fatal: function(value, force){ this.log.call(this, force ? 100 : this.level, this.FATAL, value); },
+
+        log: function(configLevel, level, value){
+                 if(configLevel >= 4 && level == this.DEBUG) console.log("%s[debug]%s: %s", this.GREEN, this.DEFAULT, value);
+            else if(configLevel >= 3 && level == this.INFO) console.log("%s[info]%s:  %s", this.CYAN, this.DEFAULT, value);
+            else if(configLevel >= 2 && level == this.WARN) console.log("%s[warn]%s:  %s", this.YELLOW, this.DEFAULT, value);
+            else if(configLevel >= 1 && level == this.ERROR) console.log("%s[error]%s: %s", this.MAGENTA, this.DEFAULT, value);
+            else if(configLevel >= 0 && level == this.FATAL) console.log("%s[fatal]%s: %s", this.RED, this.DEFAULT, value);
         }
     };
 })(this);

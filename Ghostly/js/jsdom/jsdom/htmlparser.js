@@ -20,8 +20,6 @@ IN THE SOFTWARE.
 ***********************************************/
 /* v1.7.6 */
 
-//(function () {
-
 function runningInNode () {
 	return(
 		(typeof require) == "function"
@@ -821,5 +819,3 @@ exports.ElementType = ElementType;
 exports.DomUtils = DomUtils;
 
 return exports;
-//console.log(exports);
-//})();

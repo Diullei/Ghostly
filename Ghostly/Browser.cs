@@ -1,27 +1,49 @@
-﻿using System;
+﻿// ===============================================================================
+// Ghostly - .NET Headless Browser
+// https://github.com/Diullei/Ghostly
+//
+// Browser.cs
+//
+// The browser object
+// ===============================================================================
+// SINCE VERSION: 0.1.0
+// ===============================================================================
+// Copyright (c) 2012 by Diullei Gomes
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+// ===============================================================================
+using System;
+using System.Text.RegularExpressions;
+using Ghostly.Test;
 
 namespace Ghostly
 {
-    public class TestSuite
-    {
-        public void Assert(bool condition)
-        {
-            if (!condition)
-                throw new Exception("Invalid assert condition!");
-        }
-    }
-
     public class Browser
     {
-        private Action _callback;
+        private Action<string, dynamic> _callback;
+        
         private string _url;
 
-        private GhostlyJS Vm { get; set; }
+        private bool _wasInitialized = false;
 
-        public dynamic Window
-        {
-            get { return new DomProxy(Vm, "window"); }
-        }
+        private GhostlyJS GhostlyJS { get; set; }
 
         public Route Route { get; private set; }
 
@@ -31,61 +53,60 @@ namespace Ghostly
         {
             Test = new TestSuite();
             Route = new Route();
-            Vm = new GhostlyJS(new string[]{ });
-            //Vm.SetParameter("$___http___", new Http(Route));
         }
 
-        private void Init()
+        public void Init()
         {
-            var envJs = new EnvJs(Vm);
-            envJs.Init();
-            Vm.SetParameter("browser", this);
+            if (_wasInitialized)
+                return;
+
+            GhostlyJS = new GhostlyJS(new string[] { });
+            GhostlyJS.SetParameter("$___http___", new Http(new Route()));
+            GhostlyJS.Exec("global.jsdom = require('js/jsdom/jsdom');");
+            GhostlyJS.SetParameter("$__browser__", this);
+            _wasInitialized = true;
         }
 
         private void LoadUrl()
         {
-            Vm.Exec(string.Format("window = new Window(); window.location='{0}'", _url));
-            Vm.Exec("(function(){ browser.Callback(); })()");
+            GhostlyJS.Exec(
+                string.Format(
+                    "global.jsdom.env('{0}', function(errors, window) {{ global.window = window; $__browser__.Callback(errors); }})", _url));
         }
 
-        public void Visit(string url, BrowserOptions options, Action callback)
+        public void Visit(string url, BrowserOptions options, Action<string, dynamic> callback)
         {
             _callback = callback;
-            _url = url;
+            _url = Regex.Replace(url, "\\r\\n", "\\\n");
             Init();
             LoadUrl();
         }
 
-        public static string StaticCallback(object browser)
+        public void Callback(string errors)
         {
-            if (browser is Browser)
-                ((Browser)browser).Callback();
-            else
-                throw new Exception("Wrong class");
-
-            return "";
+            _callback.Invoke(errors, GhostlyJS.Js.window);
         }
 
-        public void Callback()
+        public void ExecScript(string script)
         {
-            _callback.Invoke();
+            GhostlyJS.Exec(script);
         }
 
         public T ExecScript<T>(string script)
         {
             if (typeof(T) == typeof(String))
             {
-                return (T)(object)Vm.Exec(script);
+                return (T)(object)GhostlyJS.Exec(script);
             }
 
             if (typeof(T) == typeof(Int32))
             {
-                return (T)(object)Vm.Exec(script);
+                return (T)(object)GhostlyJS.Exec(script);
             }
 
             if (typeof(T) == typeof(bool))
             {
-                return (T)(object)Vm.Exec(script);
+                return (T)(object)GhostlyJS.Exec(script);
             }
 
             throw new Exception("Invalid return type");

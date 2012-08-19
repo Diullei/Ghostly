@@ -6,7 +6,7 @@
 //
 // This class is used to wrap V8 engine using IGhostlyJS interface
 // ===============================================================================
-// SINCE VERSION: 0.1.0
+// SINCE VERSION: 0.2.0
 // ===============================================================================
 // Copyright (c) 2012 by Diullei Gomes
 //
@@ -42,7 +42,10 @@ namespace Ghostly
         {
             _context = new JavascriptContext();
             new Ghostly(this).Initialize(this, args);
+            Js = new JsObjecProxy(this, "global");
         }
+
+        public dynamic Js { get; private set; }
 
         public void SetParameter(string name, object value)
         {

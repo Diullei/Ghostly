@@ -3,17 +3,17 @@
     public class Version
     {
         public const int GhostlyMajorVersion = 0;
-        public const int GhostlyMinorVersion = 1;
+        public const int GhostlyMinorVersion = 2;
         public const int GhostlyPatchVersion = 0;
 
         public static string GhostlyVersionString
         {
             get
             {
-#if DEBUG
-                return GhostlyMajorVersion + "." + GhostlyMajorVersion + "." + GhostlyMajorVersion;
+#if RELEASE
+                return GhostlyMajorVersion + "." + GhostlyMinorVersion + "." + GhostlyPatchVersion;
 #else
-                return GhostlyMajorVersion + "." + GhostlyMajorVersion + "." + GhostlyMajorVersion + "-pre";
+                return GhostlyMajorVersion + "." + GhostlyMinorVersion + "." + GhostlyPatchVersion + "-pre";
 #endif
             }
         }

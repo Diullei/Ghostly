@@ -6,39 +6,42 @@ namespace Ghostly
 {
     public class Stdout
     {
-        //private Dictionary<string, ConsoleColor> _ansiCodes = new Dictionary<string, ConsoleColor>
-        //                                                          {
-        //                                                              {"\\e[0;30m", ConsoleColor.Black},
-        //                                                              {"\\e[0;34m", ConsoleColor.Blue},
-        //                                                              {"\\e[0;32m", ConsoleColor.Green},
-        //                                                              {"\\e[0;36m", ConsoleColor.Cyan},
-        //                                                              {"\\e[0;31m", ConsoleColor.Red},
-        //                                                              //{"\\e[0;35m",	ConsoleColor.Purple},
-        //                                                              //{"\\e[0;33m",	ConsoleColor.Brown},
-        //                                                              {"\\e[0;37m", ConsoleColor.Gray},
-        //                                                              {"\\e[1;30m", ConsoleColor.DarkGray},
-        //                                                              //{"\\e[1;34m",	ConsoleColor.LightBlue},
-        //                                                              //{"\\e[1;32m",	ConsoleColor.LightGreen},
-        //                                                              //{"\\e[1;36m",	ConsoleColor.LightCyan},
-        //                                                              //{"\\e[1;31m",	ConsoleColor.LightRed},
-        //                                                              //{"\\e[1;35m",	ConsoleColor.LightPurple},
-        //                                                              {"\\e[1;33m", ConsoleColor.Yellow},
-        //                                                              {"\\e[1;37m", ConsoleColor.White}
-        //                                                          };
+        private Dictionary<string, ConsoleColor> _ansiCodes = new Dictionary<string, ConsoleColor>
+            {
+                {Char.ConvertFromUtf32(27) + "[0m", ConsoleColor.Gray},
+                {Char.ConvertFromUtf32(27) + "[30m", ConsoleColor.Black},
+                {Char.ConvertFromUtf32(27) + "[34m", ConsoleColor.Blue},
+                {Char.ConvertFromUtf32(27) + "[32m", ConsoleColor.Green},
+                {Char.ConvertFromUtf32(27) + "[36m", ConsoleColor.Cyan},
+                {Char.ConvertFromUtf32(27) + "[31m", ConsoleColor.Red},
+                {Char.ConvertFromUtf32(27) + "[35m", ConsoleColor.Magenta},
+                {Char.ConvertFromUtf32(27) + "[33m", ConsoleColor.Yellow},
+                {Char.ConvertFromUtf32(27) + "[37m", ConsoleColor.White}
+            };
 
         public void Write(string value)
         {
-            /*while (Regex.IsMatch(value, "\\\\e\\[\\w;\\w\\wm"))
+            var currentColor = Console.ForegroundColor;
+            var queue = new Queue<KeyValuePair<ConsoleColor, string>>();
+
+            while (Regex.IsMatch(value, Char.ConvertFromUtf32(27) + "\\[\\d{1,2}m"))
             {
-                var groups = Regex.Match(value, "\\\\e\\[\\w;\\w\\wm").Groups;
+                var groups = Regex.Match(value, Char.ConvertFromUtf32(27) + "\\[\\d{1,2}m").Groups;
                 foreach(Group g in groups)
                 {
-                    Console.Write(value.Substring(0, g.Index));
-                    Console.ForegroundColor = _ansiCodes[value.Substring(g.Index, g.Index)];
-                    value = value.Substring(g.Index *2);
+                    queue.Enqueue(new KeyValuePair<ConsoleColor, string>(currentColor, value.Substring(0, g.Index)));
+                    currentColor = _ansiCodes[g.Value];
+                    value = value.Substring(g.Index + g.Value.Length);
                 }
-            }*/
-            Console.Write(value);
+            }
+            queue.Enqueue(new KeyValuePair<ConsoleColor, string>(currentColor, value.Substring(0)));
+
+            while (queue.Count > 0)
+            {
+                var s = queue.Dequeue();
+                Console.ForegroundColor = s.Key;
+                Console.Write(s.Value);
+            }
         }
     }
 }

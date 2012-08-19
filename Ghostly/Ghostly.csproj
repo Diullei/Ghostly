@@ -45,9 +45,7 @@
   <ItemGroup>
     <Compile Include="Browser.cs" />
     <Compile Include="BrowserOptions.cs" />
-    <Compile Include="EnvJs.cs" />
     <Compile Include="GhostlyScript.cs" />
-    <Compile Include="GlobalObjects.cs" />
     <Compile Include="Http.cs" />
     <Compile Include="HttpResponse.cs" />
     <Compile Include="IGhostlyJS.cs" />
@@ -58,89 +56,18 @@
     <Compile Include="Response.cs" />
     <Compile Include="Route.cs" />
     <Compile Include="Stdout.cs" />
+    <Compile Include="Test\TestSuite.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="GhostlyJS.cs" />
     <Compile Include="Version.cs" />
-    <Compile Include="DomProxy.cs" />
+    <Compile Include="JsObjecProxy.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="js\domain.js" />
     <EmbeddedResource Include="js\EnvJsConfig.js" />
-    <EmbeddedResource Include="envjs\console.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\css.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\dom.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\event.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\html.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\johnson.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\node.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\parser.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\core.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\johnson.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\node.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\rhino.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\rubyracer.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\platform\spydermonkey.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\rhino.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\rubyracer.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\spydermonkey.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\spydermonkey.py">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\timer.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\window.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\xhr.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="js\events.js" />
     <EmbeddedResource Include="js\ghostly.js" />
-    <EmbeddedResource Include="js\GlobalObjectsConfig.js" />
     <EmbeddedResource Include="js\util.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="envjs\johnson.rb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="envjs\rubyracer.rb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="js\buffer.js" />
@@ -225,9 +152,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="js\jsdom\jsdom\level3\xpath.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\node-htmlparser.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="js\jsdom\jsdom\selectors\index.js">

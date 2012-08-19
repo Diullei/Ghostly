@@ -6,30 +6,10 @@ namespace Example
     {
         static void Main(string[] args)
         {
-            //new Stdout().write("Diullei \\e[0;34mde Moura\\e[0;32m Gomes");
-
-            var vm = new GhostlyJS(args);
-            // move to browser
-            vm.SetParameter("$___http___", new Http(new Route()));
-
-            vm.Exec(@"
-var jsdom = require('js/jsdom/jsdom');
-
-jsdom.env('http://nodejs.org/dist/', 
-function(errors, window) {
-    console.log(window.document.body.innerHTML);
-});");
-            return;
-            /*
-            // Exemple #1
             var browser = new Browser();
+            browser.Init();
 
-            browser.Route.Interceptors.Add("http://localhost:100/", 
-                () => new HttpResponse
-                {
-                    Code = 200,
-                    Message = "OK",
-                    Body = @"
+            var html = @"
                         <!DOCTYPE HTML>
                         <html lang=""en-US"">
 	                        <head>
@@ -39,40 +19,16 @@ function(errors, window) {
 	                        <body>
 		                        <div id=""ghostly"">Ghostly - C# Headless Browser!</div>
 	                        </body>
-                        </html>"
-                });
+                        </html>";
 
-            
-            browser.Visit("http://localhost:100/", null, () =>
+            browser.Visit(html, null, (errors, window) =>
             {
                 var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
                 var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
-                var html2 = browser.Window.document.getElementById("ghostly").innerHTML;
+                var html2 = window.document.getElementById("ghostly").innerHTML;
 
                 browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");
                 browser.Test.Assert(html2 == "Ghostly - C# Headless Browser!");
-            });
-            */
-            // Exemple #2
-            var browser = new Browser();
-
-            browser.Route.Interceptors.Add("http://localhost:1001/",
-                () => new HttpResponse
-                {
-                    Code = 200,
-                    Message = "OK",
-                    //Body = "<html><head><script>var myObj = {name: \"Diullei Gomes\"};</script></head><body><div>Ghostly</div></body></html>"
-                    Body = "<html><head><script>var myObj = {val: 1234};</script></head><body><div>Ghostly</div></body></html>"
-                });
-
-            browser.Visit("http://localhost:100/", null, () =>
-            {
-                var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
-                var name1 = browser.ExecScript<string>("window.myObj.val");
-                var name2 = browser.Window.window.myObj.val;
-
-                browser.Test.Assert(name1 == "Diullei Gomes");
-                browser.Test.Assert(name2 == "Diullei Gomes");
             });
         }
     }

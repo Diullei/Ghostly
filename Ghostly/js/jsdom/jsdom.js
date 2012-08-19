@@ -79,7 +79,7 @@ exports.jsdom = function (html, level, options) {
     if (doc.createWindow) {
       delete doc.createWindow;
     }
-    return doc.parentWindow; console.log(999);
+    return doc.parentWindow; 
   };
 
   return doc;
@@ -187,8 +187,6 @@ exports.env = exports.jsdom.env = function () {
       window.document.implementation.addFeature('FetchExternalResources', ['script']);
       window.document.implementation.addFeature('ProcessExternalResources', ['script']);
       window.document.implementation.addFeature('MutationEvents', ['1.0']);
-
-      //console.log(window.document.getElementById('anc').innerHTML);
 
       var scriptComplete = function () {
           docsLoaded++;

@@ -7,7 +7,7 @@ namespace Ghostly
     public class Process
     {
         private readonly string[] _args;
-        private readonly IGhostlyJS _jsVm;
+        private readonly IGhostlyJS _ghostlyJS;
 
         public class Env
         {
@@ -40,8 +40,8 @@ namespace Ghostly
             _natives_exports["http_parser"] = "exports.urlDecode = {}";
 
             _args = args;
-            _jsVm = jsVm;
-            _ghostlyScript = new GhostlyScript(_jsVm);
+            _ghostlyJS = jsVm;
+            _ghostlyScript = new GhostlyScript();
         }
 
         public string title
@@ -233,7 +233,7 @@ namespace Ghostly
             }
 
             //Console.WriteLine(string.Format("[id] {0}; [dir] {1}", id, dir));
-            Console.WriteLine(string.Format("[id] {0}", id));
+            //Console.WriteLine(string.Format("[id] {0}", id));
 
             string path = null;
 
