@@ -56,5 +56,12 @@ namespace Ghostly.TestProject
             _browser.Visit("/browser/scripted", null, (errors, window)
                 => Assert.AreEqual(_browser.StatusCode, 200));
         }
+
+        [TestMethod]
+        public void ShouldHaveAParent()
+        {
+            _browser.Visit("/browser/scripted", null, (errors, window)
+                => Assert.IsNotNull(window.parent));
+        }
     }
 }

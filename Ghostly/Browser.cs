@@ -59,6 +59,7 @@ namespace Ghostly
 
         public Browser()
         {
+            StatusCode = 200;
             Test = new TestSuite();
             Route = new Route();
         }
