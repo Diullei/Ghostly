@@ -11,8 +11,7 @@ namespace Ghostly
         public GhostlyJS()
         {
             _context = new JavascriptContext();
-            new Ghostly(this).SetupProcessObject(this, new string[]{""});
-            _context.Run(Util.GetResource("ghostly"));
+            new Ghostly(this).Initialize(this, new string[]{""});
             // move to browser
             _context.SetParameter("$___http___", new Http(new Route()));
         }
