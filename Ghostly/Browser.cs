@@ -30,6 +30,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ===============================================================================
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Ghostly.Test;
 
@@ -48,6 +49,13 @@ namespace Ghostly
         public Route Route { get; private set; }
 
         public TestSuite Test { get; set; }
+
+        public dynamic Js
+        {
+            get { return GhostlyJS.Js; }
+        }
+
+        public int StatusCode { get; private set; }
 
         public Browser()
         {
@@ -76,6 +84,15 @@ namespace Ghostly
 
         public void Visit(string url, BrowserOptions options, Action<string, dynamic> callback)
         {
+            if (Route.Interceptors.ContainsKey(url))
+            {
+                url = Route.Interceptors
+                    .Where(
+                        i =>
+                        i.Key.ToUpper() == url.ToUpper())
+                        .First().Value.Invoke().Body;
+            }
+
             _callback = callback;
             _url = Regex.Replace(url, "\\r\\n", "\\\n");
             Init();
