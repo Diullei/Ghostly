@@ -47,7 +47,6 @@ static void Main(string[] args)
 ## External dependencies
 
 * V8 Engine
-* EnvJS
 
 ## Changelog
 
