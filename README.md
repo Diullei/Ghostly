@@ -46,7 +46,7 @@ static void Main(string[] args)
 
 ## External dependencies
 
-* V8 Engine
+* Noesis.Javascript (V8 Engine wrapper)
 
 ## Changelog
 
