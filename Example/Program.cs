@@ -11,11 +11,11 @@ namespace Example
             var vm = new GhostlyJS();
 
             vm.Exec(@"
-var jsdom = require('jsdom/jsdom');
+var jsdom = require('js/jsdom/jsdom');
 
-jsdom.env('<p><a id=""anc"" class=""the-link"" href=""https://github.com/tmpvar/jsdom"">jsdom\'s Homepage</a></p>', 
+jsdom.env('http://nodejs.org/dist/', 
 function(errors, window) {
-  df787878;
+    console.log(window.document.body.innerHTML);
 });");
             return;
             /*

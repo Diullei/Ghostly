@@ -2,7 +2,7 @@ var dom      = exports.dom = require("./jsdom/level3/index").dom,
     features = require('./jsdom/browser/documentfeatures'),
     fs       = require("fs"),
     pkg      = {}/*JSON.parse(fs.readFileSync(__dirname + "/../package.json")) */,
-    request  = require('request'),
+    request = require('request').request,
     URL      = require('url');
 
 var style = require('./jsdom/level2/style');
@@ -160,14 +160,14 @@ exports.env = exports.jsdom.env = function () {
           config.src = [config.src];
       }
 
-      var 
-    options = {
+      var options = {
         features: config.features || {
             'FetchExternalResources': false,
             'ProcessExternalResources': false
         },
         url: config.url
-    };
+      };
+
       var window = exports.html(html, null, options).createWindow();
       var features = JSON.parse(JSON.stringify(window.document.implementation._features));
       var docsLoaded = 0;
@@ -188,7 +188,7 @@ exports.env = exports.jsdom.env = function () {
       window.document.implementation.addFeature('ProcessExternalResources', ['script']);
       window.document.implementation.addFeature('MutationEvents', ['1.0']);
 
-      console.log(window.document.getElementById('anc').innerHTML);
+      //console.log(window.document.getElementById('anc').innerHTML);
 
       var scriptComplete = function () {
           docsLoaded++;

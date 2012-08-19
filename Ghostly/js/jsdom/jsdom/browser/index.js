@@ -259,7 +259,7 @@ exports.createWindow = function(dom, options) {
       error: function(message) { this._window.raise('error', message) }
     },
     navigator: {
-      userAgent: 'Node.js (' + process.platform + '; U; rv:' + process.version + ')',
+      userAgent: 'Ghostly (' + process.platform + '; U; rv:' + process.version + ')',
       appName: 'Node.js jsDom',
       platform: process.platform,
       appVersion: process.version
@@ -346,7 +346,7 @@ function getDefaultParser() {
     }*/
   }
 
-  var code = process.require('jsdom/jsdom/htmlparser', null).source;
+  var code = process.require('js/jsdom/jsdom/htmlparser', null).source;
   var _exp = eval( '(function (exports){' + code + '\n return exports; })({});'); 
   //console.log(_exp);
   return _exp;

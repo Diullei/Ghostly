@@ -670,6 +670,10 @@
     NativeModule._cache = {};
 
     NativeModule.require = function (id) {
+        if (id == 'http') {
+            return $___http___;
+        }
+
         if (id == 'native_module') {
             return NativeModule;
         }
@@ -749,7 +753,11 @@
 
     ModuleLoader._cache = {};
 
-    ModuleLoader.require = function (id, dir) {
+    ModuleLoader.require = function (id, dir) { 
+        if (id == 'http') {
+            return $___http___;
+        }
+
         var key = process.getRealPath(id, dir);
         //process.console('key: ' + key);
         var cached = ModuleLoader.getCached(key);

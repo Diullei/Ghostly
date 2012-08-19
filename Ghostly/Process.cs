@@ -32,11 +32,11 @@ namespace Ghostly
             _natives_exports["querystring"] = Util.GetResource("querystring");
             _natives_exports["console"] = Util.GetResource("console");
             _natives_exports["vm"] = Util.GetResource("vm");
+            _natives_exports["request"] = Util.GetResource("request");
 
             _natives_exports["fs"] = "";
-            _natives_exports["http"] = "";
+            //_natives_exports["http"] = "";
             _natives_exports["https"] = "";
-            _natives_exports["request"] = "";
             _natives_exports["http_parser"] = "exports.urlDecode = {}";
 
             _args = args;
@@ -233,7 +233,7 @@ namespace Ghostly
             }
 
             //Console.WriteLine(string.Format("[id] {0}; [dir] {1}", id, dir));
-            //Console.WriteLine(string.Format("[id] {0}", id));
+            Console.WriteLine(string.Format("[id] {0}", id));
 
             string path = null;
 
@@ -251,8 +251,6 @@ namespace Ghostly
                 path = Path.Combine(currentDirectory, id);
             }
 
-            //path = ReducePath(path);
-
             if (!File.Exists(path))
             {
                 path += ".js";
@@ -264,9 +262,6 @@ namespace Ghostly
 
             var fileInfo = new FileInfo(path);
             path = fileInfo.FullName;
-
-            //if (_requiredCache.Select(s => s.ToUpper()).Contains(path.ToUpper()))
-            //    return true;
 
             _requiredCache.Add(path);
 

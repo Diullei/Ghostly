@@ -14,9 +14,9 @@ namespace Ghostly
             _route = route;
         }
 
-        public Request Get(string hostname, int port, string path, Dictionary<string, object> headers)
+        public Request Get(string hostname, Dictionary<string, object> headers)
         {
-            return new Request(_route, hostname, port, path, headers);
+            return new Request(_route, hostname, headers);
         }
     }
 }

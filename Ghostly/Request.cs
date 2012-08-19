@@ -8,17 +8,13 @@ namespace Ghostly
     public class Request
     {
         private readonly Route _route;
-        private readonly string _hostname;
-        private readonly int _port;
-        private readonly string _path;
+        private readonly string _uri;
         private readonly Dictionary<string, object> _headers;
 
-        public Request(Route route, string hostname, int port, string path, Dictionary<string, object> headers)
+        public Request(Route route, string uri, Dictionary<string, object> headers)
         {
             _route = route;
-            _hostname = hostname;
-            _port = port;
-            _path = path;
+            _uri = uri;
             _headers = headers;
         }
 
@@ -26,12 +22,12 @@ namespace Ghostly
         {
             HttpResponse route = null;
 
-            if (_route.Interceptors.ContainsKey(string.Format("http://{0}{1}{2}", _hostname, (_port == 80 ? "" : ":" + _port), _path)))
+            if (_route.Interceptors.ContainsKey(_uri))
             {
                 route = _route.Interceptors
                     .Where(
                         i =>
-                        i.Key == string.Format("http://{0}{1}{2}", _hostname, (_port == 80 ? "" : ":" + _port), _path))
+                        i.Key == _uri)
                         .First().Value.Invoke();
                 // TODO-BUG
                 route.Body = route.Body.Replace(System.Environment.NewLine, "");
@@ -39,7 +35,7 @@ namespace Ghostly
             else
             {
                 // TODO
-                var wr = WebRequest.Create(string.Format("http://{0}{1}{2}", _hostname, (_port == 80 ? "" : ":" + _port), _path));
+                var wr = WebRequest.Create(_uri);
                 route = new HttpResponse
                             {
                                 Code = 200,
