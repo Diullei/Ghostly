@@ -1,6 +1,7 @@
 var HTMLDecode = require('./htmlencoding').HTMLDecode;
 
 function HtmlToDom(parser) {
+    //parser.moduleName = 'HTML5';
 
   if(parser && parser.write) {
     // sax parser
@@ -109,7 +110,7 @@ function HtmlToDom(parser) {
       console.log('');
     };
 
-  }
+  } console.log('out!');
 };
 
 // utility function for forgiving parser

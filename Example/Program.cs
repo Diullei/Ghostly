@@ -6,16 +6,16 @@ namespace Example
     {
         static void Main(string[] args)
         {
+            //new Stdout().write("Diullei \\e[0;34mde Moura\\e[0;32m Gomes");
+
             var vm = new GhostlyJS();
 
             vm.Exec(@"
 var jsdom = require('jsdom/jsdom');
 
-jsdom.env(""http://nodejs.org/dist/"", [
-  'http://code.jquery.com/jquery-1.5.min.js'
-],
+jsdom.env('<p><a id=""anc"" class=""the-link"" href=""https://github.com/tmpvar/jsdom"">jsdom\'s Homepage</a></p>', 
 function(errors, window) {
-    process.console(""there have been"", window.$(""a"").length, ""nodejs releases!"");
+  df787878;
 });");
             return;
             /*

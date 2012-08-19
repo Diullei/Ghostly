@@ -51,8 +51,8 @@ exports.jsdom = function (html, level, options) {
                   module.parent.filename;
   }
 
-  var browser = exports.browserAugmentation(level, options),
-      doc     = (browser.HTMLDocument)             ?
+  var browser = exports.browserAugmentation(level, options);
+  var doc     = (browser.HTMLDocument)             ?
                  new browser.HTMLDocument(options) :
                  new browser.Document(options);
 
@@ -79,7 +79,7 @@ exports.jsdom = function (html, level, options) {
     if (doc.createWindow) {
       delete doc.createWindow;
     }
-    return doc.parentWindow;
+    return doc.parentWindow; console.log(999);
   };
 
   return doc;
@@ -101,6 +101,7 @@ exports.html = function(html, level, options) {
   if (!~htmlLowered.indexOf('<html')) {
     html = '<html>' + html + '</html>';
   }
+
   return exports.jsdom(html, level, options);
 };
 
@@ -138,148 +139,149 @@ exports.jQueryify = exports.jsdom.jQueryify = function (window /* path [optional
 };
 
 
-exports.env = exports.jsdom.env = function() {
-  var
-  args        = Array.prototype.slice.call(arguments),
-  config      = exports.env.processArguments(args),
-  callback    = config.done,
-  processHTML = function(err, html) {
+exports.env = exports.jsdom.env = function () {
+    var 
+  args = Array.prototype.slice.call(arguments),
+  config = exports.env.processArguments(args),
+  callback = config.done,
+  processHTML = function (err, html) {
 
-    html += '';
-    if(err) {
-      return callback(err);
-    }
-
-    config.scripts = config.scripts || [];
-    if (typeof config.scripts === 'string') {
-      config.scripts = [config.scripts];
-    }
-
-    config.src = config.src || [];
-    if (typeof config.src === 'string') {
-      config.src = [config.src];
-    }
-
-    var
-    options    = {
-      features: config.features || {
-        'FetchExternalResources' : false,
-        'ProcessExternalResources' : false
-      },
-      url: config.url
-    },
-    window     = exports.html(html, null, options).createWindow(),
-    features   = JSON.parse(JSON.stringify(window.document.implementation._features)),
-    docsLoaded = 0,
-    totalDocs  = config.scripts.length + config.src.length,
-    readyState = null,
-    errors     = null;
-
-    if (!window || !window.document) {
-      return callback(new Error('JSDOM: a window object could not be created.'));
-    }
-
-    if( config.document ) {
-      window.document._referrer = config.document.referrer;
-      window.document._cookie = config.document.cookie;
-    }
-
-    window.document.implementation.addFeature('FetchExternalResources', ['script']);
-    window.document.implementation.addFeature('ProcessExternalResources', ['script']);
-    window.document.implementation.addFeature('MutationEvents', ['1.0']);
-
-    var scriptComplete = function() {
-      docsLoaded++;
-      if (docsLoaded >= totalDocs) {
-        window.document.implementation._features = features;
-
-        if (errors) {
-          errors = errors.concat(window.document.errors || []);
-        }
-
-        process.nextTick(function() { callback(errors, window); });
+      html += '';
+      if (err) {
+          return callback(err);
       }
-    }
+      config.scripts = config.scripts || [];
+      if (typeof config.scripts === 'string') {
+          config.scripts = [config.scripts];
+      }
 
-    if (config.scripts.length > 0 || config.src.length > 0) {
-      config.scripts.forEach(function(src) {
-        var script = window.document.createElement('script');
-        script.className = "jsdom";
-        script.onload = function() {
-          scriptComplete()
-        };
+      config.src = config.src || [];
+      if (typeof config.src === 'string') {
+          config.src = [config.src];
+      }
 
-        script.onerror = function(e) {
-          if (!errors) {
-            errors = [];
+      var 
+    options = {
+        features: config.features || {
+            'FetchExternalResources': false,
+            'ProcessExternalResources': false
+        },
+        url: config.url
+    };
+      var window = exports.html(html, null, options).createWindow();
+      var features = JSON.parse(JSON.stringify(window.document.implementation._features));
+      var docsLoaded = 0;
+      var totalDocs = config.scripts.length + config.src.length;
+      var readyState = null;
+      var errors = null;
+
+      if (!window || !window.document) {
+          return callback(new Error('JSDOM: a window object could not be created.'));
+      }
+
+      if (config.document) {
+          window.document._referrer = config.document.referrer;
+          window.document._cookie = config.document.cookie;
+      }
+
+      window.document.implementation.addFeature('FetchExternalResources', ['script']);
+      window.document.implementation.addFeature('ProcessExternalResources', ['script']);
+      window.document.implementation.addFeature('MutationEvents', ['1.0']);
+
+      console.log(window.document.getElementById('anc').innerHTML);
+
+      var scriptComplete = function () {
+          docsLoaded++;
+          if (docsLoaded >= totalDocs) {
+              window.document.implementation._features = features;
+
+              if (errors) {
+                  errors = errors.concat(window.document.errors || []);
+              }
+
+              process.nextTick(function () { callback(errors, window); });
           }
-          errors.push(e.error);
+      }
+
+      if (config.scripts.length > 0 || config.src.length > 0) {
+          config.scripts.forEach(function (src) {
+              var script = window.document.createElement('script');
+              script.className = "jsdom";
+              script.onload = function () {
+                  scriptComplete()
+              };
+
+              script.onerror = function (e) {
+                  if (!errors) {
+                      errors = [];
+                  }
+                  errors.push(e.error);
+                  scriptComplete();
+              };
+
+              script.src = src;
+              try {
+                  // project against invalid dom
+                  // ex: http://www.google.com/foo#bar
+                  window.document.documentElement.appendChild(script);
+              } catch (e) {
+                  if (!errors) {
+                      errors = [];
+                  }
+                  errors.push(e.error || e.message);
+                  scriptComplete();
+              }
+          });
+
+          config.src.forEach(function (src) {
+              var script = window.document.createElement('script');
+              script.onload = function () {
+                  process.nextTick(scriptComplete);
+              };
+
+              script.onerror = function (e) {
+                  if (!errors) {
+                      errors = [];
+                  }
+                  errors.push(e.error || e.message);
+                  // nextTick so that an exception within scriptComplete won't cause
+                  // another script onerror (which would be an infinite loop)
+                  process.nextTick(scriptComplete);
+              };
+
+              script.text = src;
+              window.document.documentElement.appendChild(script);
+              window.document.documentElement.removeChild(script);
+          });
+      } else {
           scriptComplete();
-        };
-
-        script.src = src;
-        try {
-          // project against invalid dom
-          // ex: http://www.google.com/foo#bar
-          window.document.documentElement.appendChild(script);
-        } catch(e) {
-          if(!errors) {
-            errors=[];
-          }
-          errors.push(e.error || e.message);
-          scriptComplete();
-        }
-      });
-
-      config.src.forEach(function(src) {
-        var script = window.document.createElement('script');
-        script.onload = function() {
-          process.nextTick(scriptComplete);
-        };
-
-        script.onerror = function(e) {
-          if (!errors) {
-            errors = [];
-          }
-          errors.push(e.error || e.message);
-          // nextTick so that an exception within scriptComplete won't cause
-          // another script onerror (which would be an infinite loop)
-          process.nextTick(scriptComplete);
-        };
-
-        script.text = src;
-        window.document.documentElement.appendChild(script);
-        window.document.documentElement.removeChild(script);
-      });
-    } else {
-      scriptComplete();
-    }
+      }
   };
 
-  config.html += '';
+    config.html += '';
 
-  // Handle markup
-  if (config.html.indexOf("\n") > 0 || config.html.match(/^\W*</)) {
-    processHTML(null, config.html);
+    // Handle markup
+    if (config.html.indexOf("\n") > 0 || config.html.match(/^\W*</)) {
+        processHTML(null, config.html);
 
-  // Handle url/file
-  } else {
-    var url = URL.parse(config.html);
-    config.url = config.url || url.href;
-    if (url.hostname) {
-      request({
-        uri      : url,
-        encoding : config.encoding || 'utf8',
-        headers  : config.headers || {},
-        proxy    : config.proxy || null
-      },
-      function(err, request, body) {
-        processHTML(err, body);
-      });
+        // Handle url/file
     } else {
-      fs.readFile(config.html, processHTML);
+        var url = URL.parse(config.html);
+        config.url = config.url || url.href;
+        if (url.hostname) {
+            request({
+                uri: url,
+                encoding: config.encoding || 'utf8',
+                headers: config.headers || {},
+                proxy: config.proxy || null
+            },
+      function (err, request, body) {
+          processHTML(err, body);
+      });
+        } else {
+            fs.readFile(config.html, processHTML);
+        }
     }
-  }
 };
 
 /*

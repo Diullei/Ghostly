@@ -25,6 +25,7 @@
 // bootstrapping the node.js core. Special caution is given to the performance
 // of the startup process, so many dependencies are invoked lazily.
 (function (process) {
+
     this.global = this;
 
     function startup() {
@@ -249,11 +250,36 @@
         };
     };
 
+    //var queue = [];
+
     startup.processNextTick = function () {
+        /*
+        process.nextTick = function (fn) {
+        console.log(':nextTick');
+        queue.push(fn);
+        };
+
+        // later after the tick for I/O or timers returns back to the event loop root.
+        process.processNextTicks = function () {
+        console.log(':processNextTicks');
+        var fn
+        while (fn = queue.shift()) {
+        fn();
+        }
+        };*/
+
         var nextTickQueue = [];
         var nextTickIndex = 0;
         var inTick = false;
         var tickDepth = 0;
+
+        process._needTickCallback = function () {
+            console.log(':_needTickCallback');
+            var fn
+            while (fn = nextTickQueue.shift()) {
+                fn.callback();
+            }
+        };
 
         // the maximum number of times it'll process something like
         // nextTick(function f(){nextTick(f)})
@@ -332,7 +358,7 @@
 
                 // continue until the max depth or we run out of tocks.
             } while (tickDepth < process.maxTickDepth &&
-               nextTickQueue.length > 0);
+        nextTickQueue.length > 0);
 
             tickDone();
         };
@@ -375,11 +401,13 @@
 
     function createWritableStdioStream(fd) {
         var stream;
-        var tty_wrap = process.binding('tty_wrap');
+        var tty_wrap = NativeModule.require('tty_wrap');
 
         // Note stream._type is used for test-module-load-list.js
 
+        // diullei
         switch (tty_wrap.guessHandleType(fd)) {
+            //switch ('TTY') {      
             case 'TTY':
                 var tty = NativeModule.require('tty');
                 stream = new tty.WriteStream(fd);
@@ -662,6 +690,8 @@
         nativeModule.compile();
         nativeModule.cache();
 
+        nativeModule.parent = this;
+
         return nativeModule.exports;
     };
 
@@ -706,34 +736,6 @@
     process.NativeModule = NativeModule;
 })(process);
 
-//this.exports = {};
-//var self_exports = this.exports;
-
-function __merge__(obj1, obj2) {
-    for (var prop in obj2) {
-        if (typeof obj2[prop] == 'object') {
-            if (typeof obj1[prop] != 'object') {
-                obj1[prop] = {};
-            }
-            //__merge__(obj1[prop], obj2[prop]);
-        }
-        obj1[prop] = obj2[prop];
-    }
-}
-
-function __clone__(obj1, obj2) {
-    for (var prop in obj2) {
-        if (typeof obj2[prop] == 'object') {
-            obj1[prop] = {};
-            __clone__(obj1[prop], obj2[prop]);
-        } else {
-            obj1[prop] = obj2[prop];
-        }
-    }
-}
-
-//var console = { log: function (value) { process.console(value); } }
-
 (function (root) { 
 
     function ModuleLoader(id, dir) {
@@ -760,6 +762,8 @@ function __clone__(obj1, obj2) {
         module.compile();
         module.cache();
 
+		module.parent = this;
+		
         return module.exports;
     }
 
@@ -786,13 +790,10 @@ function __clone__(obj1, obj2) {
         source = ModuleLoader.wrap(required.source);
         eval(source)(
             this.exports, 
-            //function (id) { return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id); }, 
             function(id){ 
                 try {
-                    //process.console(id);
                     return process.NativeModule.require(id);
                 } catch (e) {
-                    //process.console(id + ' -- ' + e.message);
                     return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id);
                 }
             },
@@ -803,7 +804,6 @@ function __clone__(obj1, obj2) {
     };
 
     ModuleLoader.prototype.cache = function () {
-        //process.console('caching: ' + this.fullId);
         ModuleLoader._cache[this.fullId] = this;
     };
 
@@ -816,54 +816,6 @@ function __clone__(obj1, obj2) {
         }
     };
 
+    console.log('Diullei %s Moura Gomes', 'DE');
+    console.info({name:'diullei', idade: 29, noiva: {name:'Vivi Linda!'}});
 })(this);
-
-/*
-(function (root) {
-    var __cache__ = {};
-    root.console = { log: function (value) { process.console(value); } }
-
-    root.require = function (id, dir) {
-        //if(__cache__[required.filename + '\\' + required.dirname])
-        //   return  exports;
-
-        try {
-            return process.NativeModule.require(id);
-        } catch (e) {
-            process.console('error: ' + e.message);
-
-            var exports = {};
-            //__clone__(bk_exports, exports);
-            var module = { exports: exports };
-
-            var required = process.require(id, dir);
-
-            if (required === true) {
-                process.console(' <-- ');
-                return process.global_exports;
-            }
-
-            var source = root.process.NativeModule.wrap(required.source);
-            //__cache__[required.filename + '\\' + required.dirname] = true;
-            //var fn = runInThisContext(source, '', true);
-            eval(source)(
-                bk_exports,
-                function (id) { return (function (id) { return root.require(id, this.dirname); }).call(required, id); },
-                module,
-                required.filename,
-                required.dirname);
-            //process.console(id + ' - ' + exports);
-
-            __merge__(process.global_exports, bk_exports);
-
-            try {
-                process.console(process.global_exports.dom.level2 == null ? 'não' : process.global_exports.dom.level2);
-            } catch (e) {
-                process.console('não!');
-            }
-
-            return process.global_exports;
-        }
-    }
-})(this);
-*/

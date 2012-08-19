@@ -14,18 +14,21 @@ var http          = require('http'),
 //} catch (e) {
   // Shim for when the contextify compilation fails.
   // This is not quite as correct, but it gets the job done.
-  Contextify = function(sandbox) { process.console('iniciou...');
-    var vm = require('vm');
-    var context = vm.createContext(sandbox);
+  Contextify = function(sandbox) {
+    //var vm = require('vm');
+    //var context = vm.createContext(sandbox);
+	var context = sandbox;
     var global = null;
 
-    sandbox.run = function(code, filename) {
-      return vm.runInContext(code, context, filename);
+    sandbox.run = function(code, filename) { console.log(code);
+      //return vm.runInContext(code, context, filename);
+	  var module = {context: context};
+	  return eval('(function (exports, require, module, __filename, __dirname) { ' + code + '\n})')(context, require, module, filename);
     };
 
     sandbox.getGlobal = function() {
       if (!global) {
-        global = vm.runInContext('this', context);
+        global = context;//vm.runInContext('this', context);
       }
       return global;
     };
@@ -329,9 +332,10 @@ exports.createWindow = function(dom, options) {
 var defaultParser = null;
 function getDefaultParser() {
   if (defaultParser === null) {
-    try {
-      defaultParser = require('htmlparser');
-    }
+    //try {
+      //defaultParser = require('../../jsdom/node-htmlparser');
+  //console.log(defaultParser);
+    /*}
     catch (e) {
       try {
         defaultParser = require('node-htmlparser/lib/node-htmlparser');
@@ -339,9 +343,13 @@ function getDefaultParser() {
       catch (e2) {
         defaultParser = undefined;
       }
-    }
+    }*/
   }
-  return defaultParser;
+
+  var code = process.require('jsdom/jsdom/htmlparser', null).source;
+  var _exp = eval( '(function (exports){' + code + '\n return exports; })({});'); 
+  //console.log(_exp);
+  return _exp;
 }
 
 /**
@@ -360,7 +368,7 @@ var browserAugmentation = exports.browserAugmentation = function(dom, options) {
 
   // set up html parser - use a provided one or try and load from library
   var htmltodom = new HtmlToDom(options.parser || getDefaultParser());
-
+console.log('continua daqui!');
   if (!dom.HTMLDocument) {
     dom.HTMLDocument = dom.Document;
   }

@@ -27,45 +27,47 @@ var inherits = require('util').inherits;
 //var isTTY = process.binding('tty_wrap').isTTY;
 var util = require('util');
 
-exports.isatty = function(fd) {
-  return isTTY(fd);
+exports.isatty = function (fd) {
+    return true;// isTTY(fd);
 };
 
 
 // backwards-compat
+exports.setRawMode = function () { }
+/*
 exports.setRawMode = util.deprecate(function(flag) {
-  if (!process.stdin.isTTY) {
-    throw new Error('can\'t set raw mode on non-tty');
-  }
-  process.stdin.setRawMode(flag);
+if (!process.stdin.isTTY) {
+throw new Error('can\'t set raw mode on non-tty');
+}
+process.stdin.setRawMode(flag);
 }, 'tty.setRawMode: Use `process.stdin.setRawMode()` instead.');
-
+*/
 
 function ReadStream(fd) {
   if (!(this instanceof ReadStream)) return new ReadStream(fd);
-  net.Socket.call(this, {
-    handle: new TTY(fd, true)
-  });
+  //net.Socket.call(this, {
+  //  handle: new TTY(fd, true)
+  //});
 
   this.readable = true;
   this.writable = false;
   this.isRaw = false;
 }
-inherits(ReadStream, net.Socket);
+//inherits(ReadStream, /*net.Socket*/{});
 
 exports.ReadStream = ReadStream;
 
 ReadStream.prototype.pause = function() {
-  return net.Socket.prototype.pause.call(this);
+  //return net.Socket.prototype.pause.call(this);
 };
 
 ReadStream.prototype.resume = function() {
-  return net.Socket.prototype.resume.call(this);
+  //return net.Socket.prototype.resume.call(this);
 };
 
 ReadStream.prototype.setRawMode = function(flag) {
   flag = !!flag;
-  this._handle.setRawMode(flag);
+  //this._handle.setRawMode(flag);
   this.isRaw = flag;
 };
 
@@ -75,62 +77,70 @@ ReadStream.prototype.isTTY = true;
 
 function WriteStream(fd) {
   if (!(this instanceof WriteStream)) return new WriteStream(fd);
-  net.Socket.call(this, {
-    handle: new TTY(fd, false)
-  });
+  //net.Socket.call(this, {
+  //  handle: new TTY(fd, false)
+  //});
 
   this.readable = false;
   this.writable = true;
 
-  var winSize = this._handle.getWindowSize();
+  var winSize = [80, 25];// this._handle.getWindowSize();
   if (winSize) {
     this.columns = winSize[0];
     this.rows = winSize[1];
   }
 }
 //diullei
-inherits(WriteStream, {}/*net.Socket*/);
+//inherits(WriteStream, {}/*net.Socket*/);
 exports.WriteStream = WriteStream;
 
 
 WriteStream.prototype.isTTY = true;
 
 
-WriteStream.prototype._refreshSize = function() {
-  var oldCols = this.columns;
-  var oldRows = this.rows;
-  var winSize = this._handle.getWindowSize();
-  if (!winSize) {
-    this.emit('error', errnoException(errno, 'getWindowSize'));
-    return;
-  }
-  var newCols = winSize[0];
-  var newRows = winSize[1];
-  if (oldCols !== newCols || oldRows !== newRows) {
-    this.columns = newCols;
-    this.rows = newRows;
-    this.emit('resize');
-  }
+WriteStream.prototype._refreshSize = function () {
+    var oldCols = this.columns;
+    var oldRows = this.rows;
+    var winSize = [80, 25];// this._handle.getWindowSize();
+    if (!winSize) {
+        this.emit('error', errnoException(errno, 'getWindowSize'));
+        return;
+    }
+    var newCols = winSize[0];
+    var newRows = winSize[1];
+    if (oldCols !== newCols || oldRows !== newRows) {
+        this.columns = newCols;
+        this.rows = newRows;
+        this.emit('resize');
+    }
 };
 
 
 // backwards-compat
-WriteStream.prototype.cursorTo = function(x, y) {
-  require('readline').cursorTo(this, x, y);
+WriteStream.prototype.cursorTo = function (x, y) {
+    throw new Error('WriteStream.prototype.cursorTo - Not implemented.');
+    require('readline').cursorTo(this, x, y);
 };
 WriteStream.prototype.moveCursor = function(dx, dy) {
-  require('readline').moveCursor(this, dx, dy);
+    throw new Error('WriteStream.prototype.moveCursor - Not implemented.');
+    require('readline').moveCursor(this, dx, dy);
 };
 WriteStream.prototype.clearLine = function(dir) {
-  require('readline').clearLine(this, dir);
+    throw new Error('WriteStream.prototype.clearLine - Not implemented.');
+    require('readline').clearLine(this, dir);
 };
 WriteStream.prototype.clearScreenDown = function() {
-  require('readline').clearScreenDown(this);
+    throw new Error('WriteStream.prototype.clearScreenDown - Not implemented.');
+    require('readline').clearScreenDown(this);
 };
 WriteStream.prototype.getWindowSize = function() {
-  return [this.columns, this.rows];
+    throw new Error('WriteStream.prototype.getWindowSize - Not implemented.');
+    return [this.columns, this.rows];
 };
 
+WriteStream.prototype.write = function (value) {
+    $__stdout__.Write(value);
+}
 
 // TODO share with net_uv and others
 function errnoException(errorno, syscall) {
