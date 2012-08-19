@@ -10,16 +10,16 @@ namespace Example
             browser.Init();
 
             var html = @"
-                        <!DOCTYPE HTML>
-                        <html lang=""en-US"">
-	                        <head>
-		                        <meta charset=""UTF-8"">
-		                        <title></title>
-	                        </head>
-	                        <body>
-		                        <div id=""ghostly"">Ghostly - C# Headless Browser!</div>
-	                        </body>
-                        </html>";
+                <!DOCTYPE HTML>
+                <html lang=""en-US"">
+	                <head>
+		                <meta charset=""UTF-8"">
+		                <title></title>
+	                </head>
+	                <body>
+		                <div id=""ghostly"">Ghostly - C# Headless Browser!</div>
+	                </body>
+                </html>";
 
             browser.Visit(html, null, (errors, window) =>
             {
