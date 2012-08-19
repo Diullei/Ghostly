@@ -62,12 +62,12 @@ Module.wrap = NativeModule.wrap;
 
 var path = NativeModule.require('path');
 
-Module._debug = function() {};
-if (process.env.NODE_DEBUG && /module/.test(process.env.NODE_DEBUG)) {
+Module._debug = function () { Log.debug.apply(Log, arguments); };
+/*if (process.env.NODE_DEBUG && /module/.test(process.env.NODE_DEBUG)) {
   Module._debug = function(x) {
     console.error(x);
   };
-}
+}*/
 
 
 // We use this alias for the preprocessor that filters it out

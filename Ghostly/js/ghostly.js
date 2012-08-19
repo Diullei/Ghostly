@@ -1,4 +1,4 @@
-﻿// Copyright Joyent, Inc. and other Node contributors.
+﻿// Copyright (c) 2012 by Diullei Gomes
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
 // copy of this software and associated documentation files (the
@@ -19,16 +19,72 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Hello, and welcome to hacking node.js!
+// ****************************************************************
+// *************     BASED ON NODE.JS FILE     ********************
+// ****************************************************************
+
+// Copyright Joyent, Inc. and other Node contributors.
 //
-// This file is invoked by node::Load in src/node.cc, and responsible for
-// bootstrapping the node.js core. Special caution is given to the performance
-// of the startup process, so many dependencies are invoked lazily.
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
 (function (process) {
 
     this.global = this;
+    var _console_is_loaded = false;
+
+    global.Log = {
+        level: process.env.DEBUG,
+
+        NONE: 5,
+        INFO: 4,
+        DEBUG: 3,
+        WARN: 2,
+        ERROR: 1,
+        FATAL: 0,
+
+        CYAN: "\33[36m",
+        GREEN: "\33[32m",
+        YELLOW: "\33[33m",
+        MAGENTA: "\33[35m",
+        RED: "\33[31m",
+        DEFAULT: "\33[0m",
+
+        info: function (value, force) { this.log.call(this, force ? 100 : this.level, this.INFO, value); },
+        debug: function (value, force) { this.log.call(this, force ? 100 : this.level, this.DEBUG, value); },
+        warn: function (value, force) { this.log.call(this, force ? 100 : this.level, this.WARN, value); },
+        error: function (value, force) { this.log.call(this, force ? 100 : this.level, this.ERROR, value); },
+        fatal: function (value, force) { this.log.call(this, force ? 100 : this.level, this.FATAL, value); },
+
+        log: function (configLevel, level, value) {
+            if (!_console_is_loaded)
+                return;
+
+            if (configLevel >= 4 && level == this.INFO) console.log("%s[info]%s:  %s", this.CYAN, this.DEFAULT, value);
+            else if (configLevel >= 3 && level == this.DEBUG) console.log("%s[debug]%s: %s", this.GREEN, this.DEFAULT, value);
+            else if (configLevel >= 2 && level == this.WARN) console.log("%s[warn]%s:  %s", this.YELLOW, this.DEFAULT, value);
+            else if (configLevel >= 1 && level == this.ERROR) console.log("%s[error]%s: %s", this.MAGENTA, this.DEFAULT, value);
+            else if (configLevel >= 0 && level == this.FATAL) console.log("%s[fatal]%s: %s", this.RED, this.DEFAULT, value);
+        }
+    };
 
     function startup() {
+        // ===================  basic load
         var EventEmitter = NativeModule.require('events').EventEmitter;
 
         process.__proto__ = Object.create(EventEmitter.prototype, {
@@ -39,16 +95,24 @@
 
         process.EventEmitter = EventEmitter; // process.EventEmitter is deprecated
 
+        startup.globalConsole();
+        startup.processStdio();
+
+        _console_is_loaded = true;
+        // ===============================
+
+        Log.info('call - ghostly.js::startup()');
+
         startup.globalVariables();
         startup.globalTimeouts();
-        startup.globalConsole();
+        //startup.globalConsole();
 
         startup.processAssert();
         // diullei
         //startup.processConfig();
         startup.processNextTick();
         startup.processMakeCallback();
-        startup.processStdio();
+        //startup.processStdio();
         startup.processKillAndExit();
         startup.processSignalHandlers();
 
@@ -78,6 +142,7 @@
             // User passed '-e' or '--eval' arguments to Node.
             evalScript('eval');
         } else if (process.argv[1]) {
+            Log.debug('process.argv[1]');
             // make process.argv[1] into a full path
             var path = NativeModule.require('path');
             process.argv[1] = path.resolve(process.argv[1]);
@@ -161,6 +226,8 @@
     }
 
     startup.globalVariables = function () {
+        Log.info('call - ghostly.js::startup.globalVariables()');
+
         global.process = process;
         global.global = global;
         global.GLOBAL = global;
@@ -170,22 +237,32 @@
     };
 
     startup.globalTimeouts = function () {
+        Log.info('call - ghostly.js::startup.globalTimeouts()');
+
         global.setTimeout = function () {
+            Log.info('call - ghostly.js::global.setTimeout()');
+
             var t = NativeModule.require('timers');
             return t.setTimeout.apply(this, arguments);
         };
 
         global.setInterval = function () {
+            Log.info('call - ghostly.js::global.setInterval()');
+
             var t = NativeModule.require('timers');
             return t.setInterval.apply(this, arguments);
         };
 
         global.clearTimeout = function () {
+            Log.info('call - ghostly.js::global.clearTimeout()');
+
             var t = NativeModule.require('timers');
             return t.clearTimeout.apply(this, arguments);
         };
 
         global.clearInterval = function () {
+            Log.info('call - ghostly.js::global.clearInterval()');
+
             var t = NativeModule.require('timers');
             return t.clearInterval.apply(this, arguments);
         };
@@ -197,10 +274,11 @@
         });
     };
 
-
     startup._lazyConstants = null;
 
     startup.lazyConstants = function () {
+        Log.info('call - ghostly.js::startup.lazyConstants()');
+
         if (!startup._lazyConstants) {
             startup._lazyConstants = process.binding('constants');
         }
@@ -209,6 +287,8 @@
 
     var assert;
     startup.processAssert = function () {
+        Log.info('call - ghostly.js::startup.processAssert()');
+
         // Note that calls to assert() are pre-processed out by JS2C for the
         // normal build of node. They persist only in the node_g build.
         // Similarly for debug().
@@ -218,6 +298,8 @@
     };
 
     startup.processConfig = function () {
+        Log.info('call - ghostly.js::startup.processConfig()');
+
         // used for `process.config`, but not a real module
         var config = NativeModule._source.config;
         delete NativeModule._source.config;
@@ -233,7 +315,11 @@
     };
 
     startup.processMakeCallback = function () {
+        Log.info('call - ghostly.js::startup.processMakeCallback()');
+
         process._makeCallback = function (obj, fn, args) {
+            Log.info('call - ghostly.js::process._makeCallback()');
+
             var domain = obj.domain;
             if (domain) {
                 if (domain._disposed) return;
@@ -253,12 +339,16 @@
     //var queue = [];
 
     startup.processNextTick = function () {
+        Log.info('call - ghostly.js::startup.processNextTick()');
+
         var nextTickQueue = [];
         var nextTickIndex = 0;
         var inTick = false;
         var tickDepth = 0;
 
         process._needTickCallback = function () {
+            Log.info('call - ghostly.js::process._needTickCallback()');
+
             var fn
             while (fn = nextTickQueue.shift()) {
                 fn.callback();
@@ -275,6 +365,8 @@
         process.maxTickDepth = 1000;
 
         function tickDone(tickDepth_) {
+            Log.info('call - ghostly.js::startup.processNextTick.tickDone(%s)', tickDepth_);
+
             tickDepth = tickDepth_ || 0;
             nextTickQueue.splice(0, nextTickIndex);
             nextTickIndex = 0;
@@ -285,6 +377,7 @@
         }
 
         process._tickCallback = function (fromSpinner) {
+            Log.info('call - ghostly.js::process._tickCallback(%s)', fromSpinner);
 
             // if you add a nextTick in a domain's error handler, then
             // it's possible to cycle indefinitely.  Normally, the tickDone
@@ -348,6 +441,8 @@
         };
 
         process.nextTick = function (callback) {
+            Log.info('call - ghostly.js::process.nextTick(%s)', callback);
+
             // on the way out, don't bother.
             // it won't get fired anyway.
             if (process._exiting) return;
@@ -362,6 +457,8 @@
     };
 
     function evalScript(name) {
+        Log.info('call - ghostly.js::evalScript(%s)', name);
+
         var Module = NativeModule.require('module');
         var path = NativeModule.require('path');
         var cwd = process.cwd();
@@ -374,6 +471,8 @@
     }
 
     function errnoException(errorno, syscall) {
+        Log.info('call - ghostly.js::errnoException(%s, %s)', errorno, syscall);
+
         // TODO make this more compatible with ErrnoException from src/node.cc
         // Once all of Node is using this function the ErrnoException from
         // src/node.cc should be removed.
@@ -391,7 +490,7 @@
 
         // diullei
         switch (tty_wrap.guessHandleType(fd)) {
-            //switch ('TTY') {      
+            //switch ('TTY') {               
             case 'TTY':
                 var tty = NativeModule.require('tty');
                 stream = new tty.WriteStream(fd);
@@ -522,7 +621,11 @@
     };
 
     startup.processKillAndExit = function () {
+        Log.info('call - ghostly.js::startup.processKillAndExit()');
+
         process.exit = function (code) {
+            Log.info('call - ghostly.js::process.exit(%s)', code);
+
             if (!process._exiting) {
                 process._exiting = true;
                 process.emit('exit', code || 0);
@@ -531,6 +634,7 @@
         };
 
         process.kill = function (pid, sig) {
+            Log.info('call - ghostly.js::process.kill(%s, %s)', pid, sig);
             var r;
 
             // preserve null signal
@@ -554,6 +658,8 @@
     };
 
     startup.processSignalHandlers = function () {
+        Log.info('call - ghostly.js::startup.processSignalHandlers()');
+
         // Load events module in order to access prototype elements on process like
         // process.addListener.
         var signalWatchers = {};
@@ -561,11 +667,15 @@
         var removeListener = process.removeListener;
 
         function isSignal(event) {
+            Log.info('call - ghostly.js::startup.processSignalHandlers.isSignal(%d)', event);
+
             return event.slice(0, 3) === 'SIG' && startup.lazyConstants()[event];
         }
 
         // Wrap addListener for the special signal types
         process.on = process.addListener = function (type, listener) {
+            Log.info('call - ghostly.js::process.on = process.addListener(%s, %s)', type, listener);
+
             var ret = addListener.apply(this, arguments);
             if (isSignal(type)) {
                 if (!signalWatchers.hasOwnProperty(type)) {
@@ -584,6 +694,8 @@
         };
 
         process.removeListener = function (type, listener) {
+            Log.info('call - ghostly.js::process.removeListener(%s, %s)', type, listener);
+
             var ret = removeListener.apply(this, arguments);
             if (isSignal(type)) {
                 assert(signalWatchers.hasOwnProperty(type));
@@ -599,6 +711,8 @@
 
 
     startup.processChannel = function () {
+        Log.info('call - ghostly.js::startup.processChannel()');
+
         // If we were spawned with env NODE_CHANNEL_FD then load that up and
         // start parsing data from that stream.
         if (process.env.NODE_CHANNEL_FD) {
@@ -621,6 +735,8 @@
     }
 
     startup.resolveArgv0 = function () {
+        Log.info('call - ghostly.js::startup.resolveArgv0()');
+
         var cwd = process.cwd();
         var isWindows = process.platform === 'win32';
 
@@ -654,6 +770,9 @@
     NativeModule._cache = {};
 
     NativeModule.require = function (id) {
+        if (process.env.INFO_REQUIRE)
+            process.console('[info]:  call - ghostly.js::NativeModule.require(' + id + ')');
+
         if (id == 'http') {
             return $___http___;
         }
@@ -738,6 +857,9 @@
     ModuleLoader._cache = {};
 
     ModuleLoader.require = function (id, dir) { 
+        if (process.env.INFO_REQUIRE)
+            Log.info('call - ghostly.js::ModuleLoader.require(' + id + ', ' + dir + ')');
+
         if (id == 'http') {
             return $___http___;
         }
@@ -804,38 +926,6 @@
             return process.NativeModule.require(id);
         } catch (e) {
             return (function(id, dir){ return ModuleLoader.require(id, dir); }).call({}, id, dir);
-        }
-    };
-
-    global.Log = {
-        level: 0,
-
-        NONE: 5,
-        DEBUG: 4,
-        INFO: 3,
-        WARN: 2,
-        ERROR: 1,
-        FATAL: 0,
-
-        CYAN: "\33[36m",
-        GREEN: "\33[32m",
-        YELLOW: "\33[33m",
-        MAGENTA: "\33[35m",
-        RED: "\33[31m",
-        DEFAULT: "\33[0m",
-
-        debug: function(value, force){ this.log.call(this, force ? 100 : this.level, this.DEBUG, value); },
-        info: function(value, force){ this.log.call(this, force ? 100 : this.level, this.INFO, value); },
-        warn: function(value, force){ this.log.call(this, force ? 100 : this.level, this.WARN, value); },
-        error: function(value, force){ this.log.call(this, force ? 100 : this.level, this.ERROR, value); },
-        fatal: function(value, force){ this.log.call(this, force ? 100 : this.level, this.FATAL, value); },
-
-        log: function(configLevel, level, value){
-                 if(configLevel >= 4 && level == this.DEBUG) console.log("%s[debug]%s: %s", this.GREEN, this.DEFAULT, value);
-            else if(configLevel >= 3 && level == this.INFO) console.log("%s[info]%s:  %s", this.CYAN, this.DEFAULT, value);
-            else if(configLevel >= 2 && level == this.WARN) console.log("%s[warn]%s:  %s", this.YELLOW, this.DEFAULT, value);
-            else if(configLevel >= 1 && level == this.ERROR) console.log("%s[error]%s: %s", this.MAGENTA, this.DEFAULT, value);
-            else if(configLevel >= 0 && level == this.FATAL) console.log("%s[fatal]%s: %s", this.RED, this.DEFAULT, value);
         }
     };
 })(this);

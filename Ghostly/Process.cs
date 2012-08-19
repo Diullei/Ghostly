@@ -7,16 +7,20 @@ namespace Ghostly
     public class Process
     {
         private readonly string[] _args;
+
         private readonly IGhostlyJS _ghostlyJS;
 
-        public class Env
+        private enum DebugLevel
         {
-            public string HOME = Environment.CurrentDirectory;
-            public string TMPDIR = Path.GetTempPath();
-            public string LANG = Environment.OSVersion.Platform.ToString();
+            None = -1,
+            Info = 4,
+            Debug = 3,
+            Warn = 2,
+            Error = 1,
+            Fatal = 0
         }
 
-        public Process(string[] args, IGhostlyJS jsVm)
+        public Process(string[] args, IGhostlyJS ghostlyJS)
         {
             _natives_exports["events"] = Util.GetResource("events");
             _natives_exports["domain"] = Util.GetResource("domain");
@@ -40,7 +44,7 @@ namespace Ghostly
             _natives_exports["http_parser"] = "exports.urlDecode = {}";
 
             _args = args;
-            _ghostlyJS = jsVm;
+            _ghostlyJS = ghostlyJS;
             _ghostlyScript = new GhostlyScript();
         }
 
@@ -78,9 +82,16 @@ namespace Ghostly
 
         //execArgv
 
-        private Env _env = new Env();
+        private Dictionary<string, object> _env = new Dictionary<string, object>
+                                                      {
+                                                          {"HOME", Environment.CurrentDirectory},
+                                                          {"TMPDIR", Path.GetTempPath()},
+                                                          {"LANG", Environment.OSVersion.Platform.ToString()},
+                                                          {"INFO_REQUIRE", true},
+                                                          {"DEBUG", (int)DebugLevel.Info}
+                                                      };
 
-        public Env env
+        public Dictionary<string, object> env
         {
             get { return _env; }
         }
