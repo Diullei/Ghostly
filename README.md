@@ -38,6 +38,7 @@ static void Main(string[] args)
 
 ## TODO
 
+* Make it work on mono
 * Include tests
 * node.js files gateway
 * Correct implementation of the httpRequest on C#
