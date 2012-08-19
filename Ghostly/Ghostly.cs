@@ -29,6 +29,8 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ===============================================================================
+using System.Linq;
+
 namespace Ghostly
 {
     public class Ghostly
@@ -42,8 +44,11 @@ namespace Ghostly
 
         public void Initialize(IGhostlyJS jsVm, params string[] args)
         {
-            var process = new Process(args, jsVm);
-            _ghostlyJs.SetParameter("process", process);
+            // by convention first argument w'll be ghostly string
+            var pargs = args.ToList();
+            pargs.Insert(0, "ghostly");
+
+            _ghostlyJs.SetParameter("process", new Process(pargs.ToArray(), jsVm));
             _ghostlyJs.SetParameter("$__stdout__", new Stdout());
             _ghostlyJs.Exec(Util.GetResource("ghostly"));
         }

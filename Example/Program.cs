@@ -8,7 +8,9 @@ namespace Example
         {
             //new Stdout().write("Diullei \\e[0;34mde Moura\\e[0;32m Gomes");
 
-            var vm = new GhostlyJS();
+            var vm = new GhostlyJS(args);
+            // move to browser
+            vm.SetParameter("$___http___", new Http(new Route()));
 
             vm.Exec(@"
 var jsdom = require('js/jsdom/jsdom');

@@ -823,7 +823,4 @@
             return (function(id, dir){ return ModuleLoader.require(id, dir); }).call({}, id, dir);
         }
     };
-
-    console.log('Diullei %s Moura Gomes', 'DE');
-    console.info({name:'diullei', idade: 29, noiva: {name:'Vivi Linda!'}});
 })(this);

@@ -31,7 +31,7 @@ namespace Ghostly
         {
             Test = new TestSuite();
             Route = new Route();
-            Vm = new GhostlyJS();
+            Vm = new GhostlyJS(new string[]{ });
             //Vm.SetParameter("$___http___", new Http(Route));
         }
 
