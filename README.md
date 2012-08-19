@@ -24,8 +24,10 @@ static void Main(string[] args)
 
 	browser.Visit(html, null, (errors, window) =>
 	{
+		// using ExecScript method
 		var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
 		var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
+		// using dynamic object
 		var html2 = window.document.getElementById("ghostly").innerHTML;
 
 		browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");
