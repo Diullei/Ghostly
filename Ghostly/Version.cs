@@ -4,7 +4,7 @@
     {
         public const int GhostlyMajorVersion = 0;
         public const int GhostlyMinorVersion = 2;
-        public const int GhostlyPatchVersion = 0;
+        public const int GhostlyPatchVersion = 1;
 
         public static string GhostlyVersionString
         {

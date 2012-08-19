@@ -5,20 +5,14 @@
 ### Example
 
 ```csharp
-class Program
+static void Main(string[] args)
 {
-	static void Main(string[] args)
-	{
-		var browser = new Browser();
+	var browser = new Browser();
+	browser.Init();
 
-		browser.Route.Interceptors.Add("http://localhost:100/", 
-			() => new HttpResponse
-			{
-				Code = 200,
-				Message = "OK",
-				Body = @"
-					<!DOCTYPE HTML>
-					<html lang=""en-US"">
+	var html = @"
+				<!DOCTYPE HTML>
+				<html lang=""en-US"">
 					<head>
 						<meta charset=""UTF-8"">
 						<title></title>
@@ -26,20 +20,17 @@ class Program
 					<body>
 						<div id=""ghostly"">Ghostly - C# Headless Browser!</div>
 					</body>
-					</html>"
-			});
+				</html>";
 
-		browser.Visit("http://localhost:100/", null, () =>
-		{
-			// using ExecScript method
-			var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
-			// using dynamic objects
-			var html2 = browser.Window.document.getElementById("ghostly").innerHTML;
+	browser.Visit(html, null, (errors, window) =>
+	{
+		var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
+		var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
+		var html2 = window.document.getElementById("ghostly").innerHTML;
 
-			browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");
-			browser.Test.Assert(html2 == "Ghostly - C# Headless Browser!");
-		});
-	}
+		browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");
+		browser.Test.Assert(html2 == "Ghostly - C# Headless Browser!");
+	});
 }
 ```
 
@@ -56,6 +47,10 @@ class Program
 * EnvJS
 
 ## Changelog
+
+### v0.2.1 (2012-08-19)
+
+* changed EnvJS to jsdom
 
 ### v0.2.0 (2012-08-17)
 
