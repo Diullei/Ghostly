@@ -47,6 +47,7 @@ static void Main(string[] args)
 ## External dependencies
 
 * Noesis.Javascript (V8 Engine wrapper)
+* Json.net
 
 ## Changelog
 

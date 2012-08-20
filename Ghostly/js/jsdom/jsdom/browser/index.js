@@ -21,6 +21,7 @@ var http          = require('http'),
     var global = null;
 
     sandbox.run = function(code, filename) { 
+        Log.debug('sandbox.run(%s, %s)', code, filename)
       //return vm.runInContext(code, context, filename);
 	  var module = {context: context};
 	  return eval('(function (exports, require, module, __filename, __dirname) { ' + code + '\n})')(context, require, module, filename);

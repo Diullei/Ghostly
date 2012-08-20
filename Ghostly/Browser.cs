@@ -30,9 +30,11 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ===============================================================================
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Ghostly.Test;
+using Newtonsoft.Json;
 
 namespace Ghostly
 {
@@ -45,6 +47,8 @@ namespace Ghostly
         private bool _wasInitialized = false;
 
         private GhostlyJS GhostlyJS { get; set; }
+
+        public string BrowserOptions;
 
         public Route Route { get; private set; }
 
@@ -73,6 +77,15 @@ namespace Ghostly
             GhostlyJS.SetParameter("$___http___", new Http(new Route()));
             GhostlyJS.Exec("global.jsdom = require('js/jsdom/jsdom');");
             GhostlyJS.SetParameter("$__browser__", this);
+
+            GhostlyJS.Exec(@"
+global.jsdom.defaultDocumentFeatures = {
+    FetchExternalResources   : ['script'],
+    ProcessExternalResources : true,
+    MutationEvents           : false,
+    QuerySelector            : false
+}");
+
             _wasInitialized = true;
         }
 
@@ -85,6 +98,8 @@ namespace Ghostly
 
         public void Visit(string url, BrowserOptions options, Action<string, dynamic> callback)
         {
+            //BrowserOptions = JsonConvert.SerializeObject(options ?? new BrowserOptions());
+
             if (Route.Interceptors.ContainsKey(url))
             {
                 url = Route.Interceptors

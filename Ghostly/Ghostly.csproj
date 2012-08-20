@@ -35,6 +35,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Dependencies\Json.net\Bin\Net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Noesis.Javascript">
       <HintPath>..\Dependencies\Noesis.Javascript\.Net4.0\x86\Noesis.Javascript.dll</HintPath>
     </Reference>

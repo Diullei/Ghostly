@@ -144,117 +144,164 @@ exports.env = exports.jsdom.env = function () {
   args = Array.prototype.slice.call(arguments),
   config = exports.env.processArguments(args),
   callback = config.done,
-  processHTML = function (err, html) {
 
-      html += '';
-      if (err) {
-          return callback(err);
-      }
-      config.scripts = config.scripts || [];
-      if (typeof config.scripts === 'string') {
-          config.scripts = [config.scripts];
-      }
+  executePageScript = function (code, window, global) {
+      eval('(function(window, document, navigator, setTimeout, setInterval, clearTimeout, clearInterval){'
+                + code
+                + '\n})').call(window, window,
+                                       window.document,
+                                       window.navigator,
+                                       global.setTimeout,
+                                       global.setInterval,
+                                       global.clearTimeout,
+                                       global.clearInterval);
+  },
 
-      config.src = config.src || [];
-      if (typeof config.src === 'string') {
-          config.src = [config.src];
-      }
+    processInlineJavaScriptBlock = function (scripts, window) {
+        Log.debug('processInlineJavaScript: ');
+        Log.debug(scripts);
+        for (var i = 0; i < scripts.length; i++) {
+            var script = scripts[i];
+            var code = script.innerHTML;
+            var type = script.type;
+            if (type.trim() == '' || type.trim() == 'text/javascript') {
+                executePageScript(code, window, global);
+            }
+        }
+    },
 
-      var options = {
-        features: config.features || {
-            'FetchExternalResources': false,
-            'ProcessExternalResources': false
-        },
-        url: config.url
-      };
+    processHTML = function (err, html) {
+        Log.debug('jsdom.env.processHTML')
 
-      var window = exports.html(html, null, options).createWindow();
-      var features = JSON.parse(JSON.stringify(window.document.implementation._features));
-      var docsLoaded = 0;
-      var totalDocs = config.scripts.length + config.src.length;
-      var readyState = null;
-      var errors = null;
+        html += '';
+        if (err) {
+            return callback(err);
+        }
+        config.scripts = config.scripts || [];
+        if (typeof config.scripts === 'string') {
+            config.scripts = [config.scripts];
+        }
 
-      if (!window || !window.document) {
-          return callback(new Error('JSDOM: a window object could not be created.'));
-      }
+        config.src = config.src || [];
+        if (typeof config.src === 'string') {
+            config.src = [config.src];
+        }
 
-      if (config.document) {
-          window.document._referrer = config.document.referrer;
-          window.document._cookie = config.document.cookie;
-      }
+        var options = {
+            features: config.features || {
+                'FetchExternalResources': false,
+                'ProcessExternalResources': false
+            },
+            url: config.url
+        };
 
-      window.document.implementation.addFeature('FetchExternalResources', ['script']);
-      window.document.implementation.addFeature('ProcessExternalResources', ['script']);
-      window.document.implementation.addFeature('MutationEvents', ['1.0']);
+        var window = exports.html(html, null, options).createWindow();
+        var features = JSON.parse(JSON.stringify(window.document.implementation._features));
+        var docsLoaded = 0;
+        var totalDocs = config.scripts.length + config.src.length;
+        var readyState = null;
+        var errors = null;
 
-      var scriptComplete = function () {
-          docsLoaded++;
-          if (docsLoaded >= totalDocs) {
-              window.document.implementation._features = features;
+        if (!window || !window.document) {
+            return callback(new Error('JSDOM: a window object could not be created.'));
+        }
 
-              if (errors) {
-                  errors = errors.concat(window.document.errors || []);
-              }
+        if (config.document) {
+            window.document._referrer = config.document.referrer;
+            window.document._cookie = config.document.cookie;
+        }
 
-              process.nextTick(function () { callback(errors, window); });
-          }
-      }
+        window.document.implementation.addFeature('FetchExternalResources', ['script']);
+        window.document.implementation.addFeature('ProcessExternalResources', ['script']);
+        window.document.implementation.addFeature('MutationEvents', ['2.0']);
 
-      if (config.scripts.length > 0 || config.src.length > 0) {
-          config.scripts.forEach(function (src) {
-              var script = window.document.createElement('script');
-              script.className = "jsdom";
-              script.onload = function () {
-                  scriptComplete()
-              };
+        var scripts = window.document.getElementsByTagName('script');
+        if (scripts)
+            processInlineJavaScriptBlock(scripts, window);
 
-              script.onerror = function (e) {
-                  if (!errors) {
-                      errors = [];
-                  }
-                  errors.push(e.error);
-                  scriptComplete();
-              };
+        for (var i = 0; i < scripts.length; i++) {
+            var script = scripts[i];
+            if (script.src) {
+                Log.debug('uri: ' + script.src);
+                request({
+                    uri: {href: script.src},
+                    encoding: config.encoding || 'utf8',
+                    headers: config.headers || {},
+                    proxy: config.proxy || null
+                },
+                  function (err, request, body) {
+                      executePageScript(body, window, global);
+                  });
+            }
+        }
 
-              script.src = src;
-              try {
-                  // project against invalid dom
-                  // ex: http://www.google.com/foo#bar
-                  window.document.documentElement.appendChild(script);
-              } catch (e) {
-                  if (!errors) {
-                      errors = [];
-                  }
-                  errors.push(e.error || e.message);
-                  scriptComplete();
-              }
-          });
+        var scriptComplete = function () {
+            docsLoaded++;
+            if (docsLoaded >= totalDocs) {
+                window.document.implementation._features = features;
 
-          config.src.forEach(function (src) {
-              var script = window.document.createElement('script');
-              script.onload = function () {
-                  process.nextTick(scriptComplete);
-              };
+                if (errors) {
+                    errors = errors.concat(window.document.errors || []);
+                }
 
-              script.onerror = function (e) {
-                  if (!errors) {
-                      errors = [];
-                  }
-                  errors.push(e.error || e.message);
-                  // nextTick so that an exception within scriptComplete won't cause
-                  // another script onerror (which would be an infinite loop)
-                  process.nextTick(scriptComplete);
-              };
+                process.nextTick(function () { callback(errors, window); });
+            }
+        }
 
-              script.text = src;
-              window.document.documentElement.appendChild(script);
-              window.document.documentElement.removeChild(script);
-          });
-      } else {
-          scriptComplete();
-      }
-  };
+        if (config.scripts.length > 0 || config.src.length > 0) {
+            config.scripts.forEach(function (src) {
+                var script = window.document.createElement('script');
+                script.className = "jsdom";
+                script.onload = function () {
+                    scriptComplete()
+                };
+
+                script.onerror = function (e) {
+                    if (!errors) {
+                        errors = [];
+                    }
+                    errors.push(e.error);
+                    scriptComplete();
+                };
+
+                script.src = src;
+                try {
+                    // project against invalid dom
+                    // ex: http://www.google.com/foo#bar
+                    window.document.documentElement.appendChild(script);
+                } catch (e) {
+                    if (!errors) {
+                        errors = [];
+                    }
+                    errors.push(e.error || e.message);
+                    scriptComplete();
+                }
+            });
+
+            config.src.forEach(function (src) {
+                var script = window.document.createElement('script');
+                script.onload = function () {
+                    process.nextTick(scriptComplete);
+                };
+
+                script.onerror = function (e) {
+                    if (!errors) {
+                        errors = [];
+                    }
+                    errors.push(e.error || e.message);
+                    // nextTick so that an exception within scriptComplete won't cause
+                    // another script onerror (which would be an infinite loop)
+                    process.nextTick(scriptComplete);
+                };
+
+                script.text = src;
+                window.document.documentElement.appendChild(script);
+                window.document.documentElement.removeChild(script);
+            });
+        } else {
+            scriptComplete();
+        }
+    };
 
     config.html += '';
 
@@ -299,64 +346,64 @@ exports.env = exports.jsdom.env = function () {
   + arguments above are pulled out of the arguments and put into the
     config object that is returned
 */
-exports.env.processArguments = function(args) {
-  if (!args || !args.length || args.length < 1) {
-    throw new Error('No arguments passed to jsdom.env().');
-  }
+exports.env.processArguments = function (args) {
+    if (!args || !args.length || args.length < 1) {
+        throw new Error('No arguments passed to jsdom.env().');
+    }
 
-  var
+    var 
   props = {
-    'html'    : true,
-    'done'    : true,
-    'scripts' : false,
-    'config'  : false,
-    'url'     : false,  // the URL for location.href if different from html
-    'document': false   // HTMLDocument properties
+      'html': true,
+      'done': true,
+      'scripts': false,
+      'config': false,
+      'url': false,  // the URL for location.href if different from html
+      'document': false   // HTMLDocument properties
   },
   propKeys = Object.keys(props),
   config = {
-    code : []
+      code: []
   },
-  l    = args.length
+  l = args.length
   ;
-  if (l === 1) {
-    config = args[0];
-  } else {
-    args.forEach(function(v) {
-      var type = typeof v;
-      if (!v) {
-        return;
-      }
-      if (type === 'string' || v + '' === v) {
-        config.html = v;
-      } else if (type === 'object') {
-        // Array
-        if (v.length && v[0]) {
-          config.scripts = v;
-        } else {
-          // apply missing required properties if appropriate
-          propKeys.forEach(function(req) {
+    if (l === 1) {
+        config = args[0];
+    } else {
+        args.forEach(function (v) {
+            var type = typeof v;
+            if (!v) {
+                return;
+            }
+            if (type === 'string' || v + '' === v) {
+                config.html = v;
+            } else if (type === 'object') {
+                // Array
+                if (v.length && v[0]) {
+                    config.scripts = v;
+                } else {
+                    // apply missing required properties if appropriate
+                    propKeys.forEach(function (req) {
 
-            if (typeof v[req] !== 'undefined' &&
+                        if (typeof v[req] !== 'undefined' &&
                 typeof config[req] === 'undefined') {
 
-              config[req] = v[req];
-              delete v[req];
+                            config[req] = v[req];
+                            delete v[req];
+                        }
+                    });
+                    config.config = v;
+                }
+            } else if (type === 'function') {
+                config.done = v;
             }
-          });
-          config.config = v;
-        }
-      } else if (type === 'function') {
-        config.done = v;
-      }
-    });
-  }
-
-  propKeys.forEach(function(req) {
-    var required = props[req];
-    if (required && typeof config[req] === 'undefined') {
-      throw new Error("jsdom.env requires a '" + req + "' argument");
+        });
     }
-  });
-  return config;
+
+    propKeys.forEach(function (req) {
+        var required = props[req];
+        if (required && typeof config[req] === 'undefined') {
+            throw new Error("jsdom.env requires a '" + req + "' argument");
+        }
+    });
+    return config;
 };

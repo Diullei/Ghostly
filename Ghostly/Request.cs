@@ -29,8 +29,6 @@ namespace Ghostly
                         i =>
                         i.Key == _uri)
                         .First().Value.Invoke();
-                // TODO-BUG
-                //route.Body = route.Body.Replace(System.Environment.NewLine, "");
             }
             else
             {

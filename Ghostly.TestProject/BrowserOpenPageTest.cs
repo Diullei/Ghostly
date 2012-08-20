@@ -29,6 +29,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ===============================================================================
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ghostly.TestProject
@@ -56,7 +57,6 @@ namespace Ghostly.TestProject
                           <h1 id=""h1"">Hello World</h1>
                           <script>
                             document.title = ""Nice"";
-                            $(function() { $(""title"").text(""Awesome"") })
                           </script>
                           <script type=""text/x-do-not-parse"">
                             <p>this is not valid JavaScript</p>
@@ -92,6 +92,13 @@ namespace Ghostly.TestProject
         {
             _browser.Visit("/browser/scripted", null, (errors, window)
                 => Assert.IsNotNull(window.parent));
+        }
+
+        [TestMethod]
+        public void ShouldExecuteInlineScriptBlocks()
+        {
+            _browser.Visit("/browser/scripted", null, (errors, window)
+                => Assert.IsNotNull(window.document.title == "Nice"));
         }
     }
 }
