@@ -6,8 +6,8 @@ namespace Example
     {
         static void Main(string[] args)
         {
-            //Test();
-            //return;
+            Test();
+            return;
             var browser = new Browser();
             browser.Init();
 
@@ -44,13 +44,19 @@ namespace Example
                       <html>
                         <head>
                           <title>Whatever</title>
-                          <script src=""http://code.jquery.com/jquery-1.5.min.js""></script>
+                          <script src=""http://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.js""></script>
                         </head>
                         <body>
                           <h1 id=""h1"">Hello World</h1>
                           <script>
+                                    console.log(""xxxxxxx""); 
                             document.title = ""Nice"";
-                          </script>
+//comment
+$(function(){$(""title"").text(""Awesome"")});
+                                window.onload = function(e){ 
+                                    console.log(""document.onload""); 
+                                }
+                            </script>
                           <script type=""text/x-do-not-parse"">
                             <p>this is not valid JavaScript</p>
                           </script>
@@ -58,19 +64,22 @@ namespace Example
                       </html>"
                 });
             browser.Visit("/browser/scripted",
-                new BrowserOptions
-                {
-                    features = new BrowserOptions.Features
+                null, (errors, window) =>
                     {
-                        FetchExternalResources = true,
-                        ProcessExternalResources = true
-                    }
-                }, (errors, window) =>
-                {
-                    if (window.document.title == "Nice")
-                    {
-                    }
-                });
+                        if (window.document.title == "Nice")
+                        {
+                        }
+                        else if (window.document.title == "Awesome")
+                        {
+                            var t = browser.ExecScript<string>("window.jQuery('title').text()");
+                            var jq = window.jQuery("title").text();
+                            var name = window.document.title;
+                        }
+                        else
+                        {
+                            
+                        }
+                    });
 
         }
     }

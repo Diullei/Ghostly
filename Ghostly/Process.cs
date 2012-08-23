@@ -37,11 +37,18 @@ namespace Ghostly
             _natives_exports["console"] = Util.GetResource("console");
             _natives_exports["vm"] = Util.GetResource("vm");
             _natives_exports["request"] = Util.GetResource("request");
+            _natives_exports["jQuery"] = Util.GetResource("jQuery");
 
             _natives_exports["fs"] = "";
             //_natives_exports["http"] = "";
             _natives_exports["https"] = "";
             _natives_exports["http_parser"] = "exports.urlDecode = {}";
+
+            // to debug
+            _natives_exports["escodegen"] = Util.GetResource("debug.escodegen");
+            _natives_exports["esmorph"] = Util.GetResource("debug.esmorph");
+            _natives_exports["esprima"] = Util.GetResource("debug.esprima");
+            _natives_exports["functiontrace"] = Util.GetResource("debug.functiontrace");
 
             _args = args;
             _ghostlyJS = ghostlyJS;
@@ -88,7 +95,7 @@ namespace Ghostly
                                                           {"TMPDIR", Path.GetTempPath()},
                                                           {"LANG", Environment.OSVersion.Platform.ToString()},
                                                           {"INFO_REQUIRE", true},
-                                                          {"DEBUG", (int)DebugLevel.Info}
+                                                          {"DEBUG", (int)DebugLevel.None}
                                                       };
 
         public Dictionary<string, object> env

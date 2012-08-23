@@ -61,6 +61,12 @@ namespace Ghostly
                 return true;
             }
 
+            if ((string)_ghostlyJS.Exec(string.Format("typeof {0}.{1}", _ns, binder.Name)) == "function")
+            {
+                result = _ghostlyJS.Exec(string.Format("{0}.{1} + ''", _ns, binder.Name));
+                return true;
+            }
+
             result = _ghostlyJS.Exec(string.Format("{0}.{1}", _ns, binder.Name));
             return true;
         }
@@ -79,7 +85,7 @@ namespace Ghostly
                 return true;
             }
 
-            result = _ghostlyJS.Exec(string.Format("{0}.{1}('div_id')", _ns, binder.Name));
+            result = _ghostlyJS.Exec(string.Format("{0}.{1}({2})", _ns, binder.Name, string.Join(", ", args.Select(ArgTypeToString).ToList())));
             return true;
         }
 

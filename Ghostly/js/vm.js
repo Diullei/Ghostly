@@ -19,12 +19,15 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+throw new Error("vm.js. Está desatualizado");
+
 var binding = process.binding('evals');
 
-module.exports = Script;
-Script.Script = Script;
+//module.exports = Script;
+//Script.Script = Script;
 
 function Script(code, ctx, filename) {
+
   if (!(this instanceof Script)) {
     return new Script(code, ctx, filename);
   }
@@ -44,11 +47,11 @@ function Script(code, ctx, filename) {
   }, this);
 }
 
-Script.createScript = function(code, ctx, name) {
+exports.createScript = function(code, ctx, name) {
   return new Script(code, ctx, name);
 };
 
-Script.createContext = binding.NodeScript.createContext;
-Script.runInContext = binding.NodeScript.runInContext;
-Script.runInThisContext = binding.NodeScript.runInThisContext;
-Script.runInNewContext = binding.NodeScript.runInNewContext;
+exports.createContext = binding.NodeScript.createContext;
+exports.runInContext = binding.NodeScript.runInContext;
+exports.runInThisContext = binding.NodeScript.runInThisContext;
+exports.runInNewContext = binding.NodeScript.runInNewContext;

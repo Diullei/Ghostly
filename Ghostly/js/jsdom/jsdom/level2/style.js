@@ -1,7 +1,7 @@
 var core = require("./core").dom.level2.core,
     html = require("./html").dom.level2.html,
     utils = require("../utils"),
-    cssom = require("cssom"),
+    cssom = require("js/cssom/index"),
     assert = require('assert');
 
 // What works now:

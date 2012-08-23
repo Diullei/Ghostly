@@ -49,6 +49,7 @@ namespace Ghostly
             pargs.Insert(0, "ghostly");
 
             _ghostlyJs.SetParameter("process", new Process(pargs.ToArray(), jsVm));
+            _ghostlyJs.SetParameter("$__timer__", new JsTimer(_ghostlyJs));
             _ghostlyJs.SetParameter("$__stdout__", new Stdout());
             _ghostlyJs.Exec(Util.GetResource("ghostly"));
         }

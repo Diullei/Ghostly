@@ -5,33 +5,49 @@ var http          = require('http'),
     htmlencoding  = require('./htmlencoding'),
     HTMLEncode    = htmlencoding.HTMLEncode,
     HTMLDecode    = htmlencoding.HTMLDecode,
-    //jsdom         = require('../../jsdom'),
     Contextify    = null;
 
-//try 
+function Compiler(code, filename, global) {
+    this.filename = filename;
+    this.code = code;
+    this.global = global;
+    this.exports = {};
+}
+
+Compiler.wrap = function (script) {
+    return Compiler.wrapper[0] + script + Compiler.wrapper[1];
+};
+
+Compiler.wrapper = [
+'(function (exports, require, module, window, __filename, __dirname) { ',
+'\n});'
+];
+
+Compiler.prototype.compile = function () {
+    var source = this.code;
+
+    var preScript = '';
+
+    for(var objName in this.global){
+      preScript += 'var ' + objName + ' = window.' + objName + ';';
+    }
+
+    source = Compiler.wrap(preScript + '\n' + source);
+    eval(source)(this.exports, null, this, this.global, this.filename, null);
+};
+
 {
-  //Contextify = require('contextify');
-//} catch (e) {
-  // Shim for when the contextify compilation fails.
-  // This is not quite as correct, but it gets the job done.
   Contextify = function(sandbox) {
-    //var vm = require('vm');
-    //var context = vm.createContext(sandbox);
-	var context = sandbox;
-    var global = null;
 
     sandbox.run = function(code, filename) { 
-        Log.debug('sandbox.run(%s, %s)', code, filename)
-      //return vm.runInContext(code, context, filename);
-	  var module = {context: context};
-	  return eval('(function (exports, require, module, __filename, __dirname) { ' + code + '\n})')(context, require, module, filename);
+        var compiler = new Compiler(code, filename, this);
+
+        compiler.compile();
+       return compiler.exports;
     };
 
     sandbox.getGlobal = function() {
-      if (!global) {
-        global = context;//vm.runInContext('this', context);
-      }
-      return global;
+      return this;
     };
 
     sandbox.dispose = function() {
@@ -254,7 +270,7 @@ exports.createWindow = function(dom, options) {
       return cs;
     },
     console: {
-      log:   function(message) { this._window.raise('log',   message) },
+      log:   function(message) { console.log(message); this._window.raise('log',   message) },
       info:  function(message) { this._window.raise('info',  message) },
       warn:  function(message) { this._window.raise('warn',  message) },
       error: function(message) { this._window.raise('error', message) }

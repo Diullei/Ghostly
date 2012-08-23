@@ -30,12 +30,14 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 // ===============================================================================
 using System.Diagnostics;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ghostly.TestProject
 {
     [TestClass]
     [DeploymentItem("js", "js")]
+    [DeploymentItem("TestSrc", "TestSrc")]
     public class BrowserOpenPageTest
     {
         Browser _browser; 
@@ -64,6 +66,31 @@ namespace Ghostly.TestProject
                         </body>
                       </html>"
                 });
+
+            _browser.Route.Interceptors.Add("/browser/scripted2", () =>
+                new HttpResponse
+                {
+                    Body = @"
+                      <html>
+                        <head>
+                          <title>Whatever</title>
+                          <script src=""/jquery.js""></script>
+                        </head>
+                        <body>
+                          <h1 id=""h1"">Hello World</h1>
+                          <script>
+                            document.title = ""Nice"";
+                            //comment
+                            $(function() { $(""title"").text(""Awesome"") })
+                          </script>
+                          <script type=""text/x-do-not-parse"">
+                            <p>this is not valid JavaScript</p>
+                          </script>
+                        </body>
+                      </html>"
+                });
+
+            _browser.Route.Interceptors.Add("/jquery.js", () => new HttpResponse { Body = File.ReadAllText("TestSrc\\jQuery-1.6.0.js") });
         }
 
         [TestMethod]
@@ -98,7 +125,28 @@ namespace Ghostly.TestProject
         public void ShouldExecuteInlineScriptBlocks()
         {
             _browser.Visit("/browser/scripted", null, (errors, window)
-                => Assert.IsNotNull(window.document.title == "Nice"));
+                => Assert.AreEqual(window.document.title, "Nice"));
+        }
+
+        [TestMethod]
+        public void ShouldLoadExternalScripts()
+        {
+            _browser.Visit("/browser/scripted2", null, (errors, window)
+                => Assert.IsNotNull(_browser.Js.window.jQuery));
+        }
+
+        [TestMethod]
+        public void ShouldRunJQueryOnReady()
+        {
+            _browser.Visit("/browser/scripted2", null, (errors, window)
+                => Assert.AreEqual(window.document.title, "Awesome"));
+        }
+
+        [TestMethod]
+        public void ShouldIndicateSuccess()
+        {
+            _browser.Visit("/browser/scripted2", null, (errors, window)
+                => Assert.IsTrue(_browser.Success));
         }
     }
 }

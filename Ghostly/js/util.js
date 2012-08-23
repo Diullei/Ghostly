@@ -93,15 +93,17 @@ exports.puts = function() {
 };
 
 
-exports.debug = function(x) {
-  process.stderr.write('DEBUG: ' + x + '\n');
+exports.debug = function (x) {
+    process.stdout.write('DEBUG: ' + x + '\n');
+  //process.stderr.write('DEBUG: ' + x + '\n');
 };
 
 
 var error = exports.error = function(x) {
   for (var i = 0, len = arguments.length; i < len; ++i) {
-    process.stderr.write(arguments[i] + '\n');
-  }
+    //process.stderr.write(arguments[i] + '\n');
+      process.stdout.write(arguments[i] + '\n');
+}
 };
 
 

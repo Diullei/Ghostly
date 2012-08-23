@@ -105,38 +105,38 @@ exports.html = function(html, level, options) {
   return exports.jsdom(html, level, options);
 };
 
-exports.jQueryify = exports.jsdom.jQueryify = function (window /* path [optional], callback */) {
+//exports.jQueryify = exports.jsdom.jQueryify = function (window /* path [optional], callback */) {
 
-  if (!window || !window.document) { return; }
+//  if (!window || !window.document) { return; }
 
-  var args = Array.prototype.slice.call(arguments),
-      callback = (typeof(args[args.length - 1]) === 'function') && args.pop(),
-      path,
-      jQueryTag = window.document.createElement("script");
-      jQueryTag.className = "jsdom";
+//  var args = Array.prototype.slice.call(arguments),
+//      callback = (typeof(args[args.length - 1]) === 'function') && args.pop(),
+//      path,
+//      jQueryTag = window.document.createElement("script");
+//      jQueryTag.className = "jsdom";
 
-  if (args.length > 1 && typeof(args[1] === 'string')) {
-    path = args[1];
-  }
+//  if (args.length > 1 && typeof(args[1] === 'string')) {
+//    path = args[1];
+//  }
 
-  var features = window.document.implementation._features;
+//  var features = window.document.implementation._features;
 
-  window.document.implementation.addFeature('FetchExternalResources', ['script']);
-  window.document.implementation.addFeature('ProcessExternalResources', ['script']);
-  window.document.implementation.addFeature('MutationEvents', ["1.0"]);
-  jQueryTag.src = path || 'http://code.jquery.com/jquery-latest.js';
-  window.document.body.appendChild(jQueryTag);
+//  window.document.implementation.addFeature('FetchExternalResources', ['script']);
+//  window.document.implementation.addFeature('ProcessExternalResources', ['script']);
+//  window.document.implementation.addFeature('MutationEvents', ["1.0"]);
+//  jQueryTag.src = path || 'http://code.jquery.com/jquery-latest.js';
+//  window.document.body.appendChild(jQueryTag);
 
-  jQueryTag.onload = function() {
-    if (callback) {
-      callback(window, window.jQuery);
-    }
+//  jQueryTag.onload = function() {
+//    if (callback) {
+//      callback(window, window.jQuery);
+//    }
 
-    window.document.implementation._features = features;
-  };
+//    window.document.implementation._features = features;
+//  };
 
-  return window;
-};
+//  return window;
+//};
 
 
 exports.env = exports.jsdom.env = function () {
@@ -145,34 +145,7 @@ exports.env = exports.jsdom.env = function () {
   config = exports.env.processArguments(args),
   callback = config.done,
 
-  executePageScript = function (code, window, global) {
-      eval('(function(window, document, navigator, setTimeout, setInterval, clearTimeout, clearInterval){'
-                + code
-                + '\n})').call(window, window,
-                                       window.document,
-                                       window.navigator,
-                                       global.setTimeout,
-                                       global.setInterval,
-                                       global.clearTimeout,
-                                       global.clearInterval);
-  },
-
-    processInlineJavaScriptBlock = function (scripts, window) {
-        Log.debug('processInlineJavaScript: ');
-        Log.debug(scripts);
-        for (var i = 0; i < scripts.length; i++) {
-            var script = scripts[i];
-            var code = script.innerHTML;
-            var type = script.type;
-            if (type.trim() == '' || type.trim() == 'text/javascript') {
-                executePageScript(code, window, global);
-            }
-        }
-    },
-
     processHTML = function (err, html) {
-        Log.debug('jsdom.env.processHTML')
-
         html += '';
         if (err) {
             return callback(err);
@@ -215,25 +188,40 @@ exports.env = exports.jsdom.env = function () {
         window.document.implementation.addFeature('ProcessExternalResources', ['script']);
         window.document.implementation.addFeature('MutationEvents', ['2.0']);
 
+        ////////////////////////////////////////////////////////////////////////////////////////////
         var scripts = window.document.getElementsByTagName('script');
-        if (scripts)
-            processInlineJavaScriptBlock(scripts, window);
 
         for (var i = 0; i < scripts.length; i++) {
             var script = scripts[i];
             if (script.src) {
-                Log.debug('uri: ' + script.src);
                 request({
-                    uri: {href: script.src},
+                    uri: { href: script.src },
                     encoding: config.encoding || 'utf8',
                     headers: config.headers || {},
                     proxy: config.proxy || null
                 },
                   function (err, request, body) {
-                      executePageScript(body, window, global);
+                      window.run(body);
                   });
             }
+          }
+
+        if (scripts)
+        {
+            for (var i = 0; i < scripts.length; i++) {
+                var script = scripts[i];
+                var code = script.innerHTML;
+                var type = script.type;
+                if (type.trim() == '' || type.trim() == 'text/javascript') {
+                    window.run(code);
+                }
+            }
         }
+
+        var onload = window.document.createEvent('HTMLEvents');
+        onload.initEvent('load', false, false);
+        window.dispatchEvent(onload);
+        ////////////////////////////////////////////////////////////////////////////////////////////
 
         var scriptComplete = function () {
             docsLoaded++;

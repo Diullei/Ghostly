@@ -44,6 +44,7 @@ process.stdin.setRawMode(flag);
 */
 
 function ReadStream(fd) {
+    process.console('ReadStream constructor');
   if (!(this instanceof ReadStream)) return new ReadStream(fd);
   //net.Socket.call(this, {
   //  handle: new TTY(fd, true)
@@ -76,6 +77,7 @@ ReadStream.prototype.isTTY = true;
 
 
 function WriteStream(fd) {
+    process.console('WriteStream constructor');
   if (!(this instanceof WriteStream)) return new WriteStream(fd);
   //net.Socket.call(this, {
   //  handle: new TTY(fd, false)

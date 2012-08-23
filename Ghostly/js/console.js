@@ -29,8 +29,9 @@ exports.log = function() {
 exports.info = exports.log;
 
 
-exports.warn = function() {
-  process.stderr.write(util.format.apply(this, arguments) + '\n');
+exports.warn = function () {
+    process.stdout.write(util.format.apply(this, arguments) + '\n');
+  //process.stderr.write(util.format.apply(this, arguments) + '\n');
 };
 
 

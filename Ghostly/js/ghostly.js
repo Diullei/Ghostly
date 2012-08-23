@@ -43,6 +43,8 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
+var $__timerFunctionCallbackCollection__ = [];
+
 (function (process) {
 
     this.global = this;
@@ -83,6 +85,12 @@
         }
     };
 
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+    function guid() {
+        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+    }
     function startup() {
         // ===================  basic load
         var EventEmitter = NativeModule.require('events').EventEmitter;
@@ -232,7 +240,6 @@
         global.global = global;
         global.GLOBAL = global;
         global.root = global;
-        // diullei
         //global.Buffer = NativeModule.require('buffer').Buffer;
     };
 
@@ -241,16 +248,16 @@
 
         global.setTimeout = function () {
             Log.info('call - ghostly.js::global.setTimeout()');
-
-            var t = NativeModule.require('timers');
-            return t.setTimeout.apply(this, arguments);
+             var id = guid();
+            $__timerFunctionCallbackCollection__[id] = arguments[0];
+            $__timer__.Register(id, arguments[1], false);
         };
 
         global.setInterval = function () {
             Log.info('call - ghostly.js::global.setInterval()');
-
-            var t = NativeModule.require('timers');
-            return t.setInterval.apply(this, arguments);
+             var id = guid();
+            $__timerFunctionCallbackCollection__[id] = arguments[0];
+            $__timer__.Register(id, arguments[1], true);
         };
 
         global.clearTimeout = function () {
@@ -483,6 +490,8 @@
     }
 
     function createWritableStdioStream(fd) {
+        process.console('[info]:  call - ghostly.js::createWritableStdioStream(' + fd + ')');
+
         var stream;
         var tty_wrap = NativeModule.require('tty_wrap');
 
@@ -490,7 +499,7 @@
 
         // diullei
         switch (tty_wrap.guessHandleType(fd)) {
-            //switch ('TTY') {               
+            //switch ('TTY') {                     
             case 'TTY':
                 var tty = NativeModule.require('tty');
                 stream = new tty.WriteStream(fd);
@@ -501,6 +510,7 @@
                 if (stream._handle && stream._handle.unref) {
                     stream._handle.unref();
                 }
+                process.console('TTY end');
                 break;
 
             case 'FILE':
@@ -558,61 +568,65 @@
             return stdout;
         });
 
+        /*
         process.__defineGetter__('stderr', function () {
-            if (stderr) return stderr;
-            stderr = createWritableStdioStream(2);
-            stderr.destroy = stderr.destroySoon = function (er) {
-                er = er || new Error('process.stderr cannot be closed.');
-                stderr.emit('error', er);
-            };
-            return stderr;
-        });
+        if (stderr) return stderr;
 
-        process.__defineGetter__('stdin', function () {
-            if (stdin) return stdin;
+        process.console('[info]:  call - ghostly.js::process.__defineGetter__(stderr)');
+        stderr = createWritableStdioStream(2);
+        stderr.destroy = stderr.destroySoon = function (er) {
+        er = er || new Error('process.stderr cannot be closed.');
+        stderr.emit('error', er);
+        };
+        return stderr;
+        });*/
 
-            var tty_wrap = process.binding('tty_wrap');
-            var fd = 0;
+        /*process.__defineGetter__('stdin', function () {
+        if (stdin) return stdin;
 
-            switch (tty_wrap.guessHandleType(fd)) {
-                case 'TTY':
-                    var tty = NativeModule.require('tty');
-                    stdin = new tty.ReadStream(fd);
-                    break;
+        process.console('[info]:  call - ghostly.js::process.__defineGetter__(stdin)');
+        var tty_wrap = process.binding('tty_wrap');
+        var fd = 0;
 
-                case 'FILE':
-                    var fs = NativeModule.require('fs');
-                    stdin = new fs.ReadStream(null, { fd: fd });
-                    break;
+        switch (tty_wrap.guessHandleType(fd)) {
+        case 'TTY':
+        var tty = NativeModule.require('tty');
+        stdin = new tty.ReadStream(fd);
+        break;
 
-                case 'PIPE':
-                    var net = NativeModule.require('net');
-                    stdin = new net.Stream(fd);
-                    stdin.readable = true;
-                    break;
+        case 'FILE':
+        var fs = NativeModule.require('fs');
+        stdin = new fs.ReadStream(null, { fd: fd });
+        break;
 
-                default:
-                    // Probably an error on in uv_guess_handle()
-                    throw new Error('Implement me. Unknown stdin file type!');
-            }
+        case 'PIPE':
+        var net = NativeModule.require('net');
+        stdin = new net.Stream(fd);
+        stdin.readable = true;
+        break;
 
-            // For supporting legacy API we put the FD here.
-            stdin.fd = fd;
+        default:
+        // Probably an error on in uv_guess_handle()
+        throw new Error('Implement me. Unknown stdin file type!');
+        }
 
-            // stdin starts out life in a paused state, but node doesn't
-            // know yet.  Call pause() explicitly to unref() it.
-            stdin.pause();
+        // For supporting legacy API we put the FD here.
+        stdin.fd = fd;
 
-            // when piping stdin to a destination stream,
-            // let the data begin to flow.
-            var pipe = stdin.pipe;
-            stdin.pipe = function (dest, opts) {
-                stdin.resume();
-                return pipe.call(stdin, dest, opts);
-            };
+        // stdin starts out life in a paused state, but node doesn't
+        // know yet.  Call pause() explicitly to unref() it.
+        stdin.pause();
 
-            return stdin;
-        });
+        // when piping stdin to a destination stream,
+        // let the data begin to flow.
+        var pipe = stdin.pipe;
+        stdin.pipe = function (dest, opts) {
+        stdin.resume();
+        return pipe.call(stdin, dest, opts);
+        };
+
+        return stdin;
+        });*/
 
         process.openStdin = function () {
             process.stdin.resume();
@@ -771,7 +785,7 @@
 
     NativeModule.require = function (id) {
         if (process.env.INFO_REQUIRE)
-            process.console('[info]:  call - ghostly.js::NativeModule.require(' + id + ')');
+            if (id != 'console') process.console('[info]:  call - ghostly.js::NativeModule.require(' + id + ')');
 
         if (id == 'http') {
             return $___http___;
@@ -844,6 +858,7 @@
 })(process);
 
 (function (root) { 
+    var functiontrace = eval('(function (exports) { ' + process.binding('functiontrace') + '\n return exports;})')({});
 
     function ModuleLoader(id, dir) {
         this.filename = id + '.js';
@@ -901,18 +916,27 @@
     ModuleLoader.prototype.compile = function () {
         var required = ModuleLoader.getSource(this.id, this.dir);
         this.dir = required.dirname;
+        ///
+        ///var source = functiontrace.traceInstrument(required.source)
+        ///
         source = ModuleLoader.wrap(required.source);
-        eval(source)(
-            this.exports, 
-            function(id){ 
-                try {
-                    return process.NativeModule.require(id);
-                } catch (e) {
-                    return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id);
-                }
-            },
-            this, 
-            this.filename);
+
+        try {
+            eval(source)(
+                this.exports, 
+                function(id){ 
+                    try {
+                        return process.NativeModule.require(id);
+                    } catch (e) {
+                        return (function (id) { return ModuleLoader.require(id, this.dirname); }).call(required, id);
+                    }
+                },
+                this, 
+                this.filename);
+        } catch (e) {
+            Log.fatal('compile module: ' + this.id + ' - ' + e.message);
+            throw e;
+        }
 
         this.loaded = true;
     };
@@ -928,4 +952,5 @@
             return (function(id, dir){ return ModuleLoader.require(id, dir); }).call({}, id, dir);
         }
     };
+
 })(this);

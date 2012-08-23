@@ -59,11 +59,14 @@ namespace Ghostly
             get { return GhostlyJS.Js; }
         }
 
-        public int StatusCode { get; private set; }
+        public int StatusCode { get; set; }
+
+        public bool Success { get; set; }
 
         public Browser()
         {
             StatusCode = 200;
+            Success = true;
             Test = new TestSuite();
             Route = new Route();
         }
@@ -74,17 +77,9 @@ namespace Ghostly
                 return;
 
             GhostlyJS = new GhostlyJS(new string[] { });
-            GhostlyJS.SetParameter("$___http___", new Http(new Route()));
+            GhostlyJS.SetParameter("$___http___", new Http(Route));
             GhostlyJS.Exec("global.jsdom = require('js/jsdom/jsdom');");
             GhostlyJS.SetParameter("$__browser__", this);
-
-            GhostlyJS.Exec(@"
-global.jsdom.defaultDocumentFeatures = {
-    FetchExternalResources   : ['script'],
-    ProcessExternalResources : true,
-    MutationEvents           : false,
-    QuerySelector            : false
-}");
 
             _wasInitialized = true;
         }
@@ -93,13 +88,16 @@ global.jsdom.defaultDocumentFeatures = {
         {
             GhostlyJS.Exec(
                 string.Format(
-                    "global.jsdom.env('{0}', function(errors, window) {{ global.window = window; $__browser__.Callback(errors); }})", _url));
+                    @"global.jsdom.env('{0}', function(errors, window) {{ 
+                        global.window = window; 
+                        require('js/jsdom/jQuery'); var $__$ = window.$.noConflict(); $__$.ready(); 
+                        if(window.$.ready) window.$.ready(); 
+                        $__browser__.Callback(errors); 
+                    }})", _url));
         }
 
         public void Visit(string url, BrowserOptions options, Action<string, dynamic> callback)
         {
-            //BrowserOptions = JsonConvert.SerializeObject(options ?? new BrowserOptions());
-
             if (Route.Interceptors.ContainsKey(url))
             {
                 url = Route.Interceptors
@@ -110,7 +108,7 @@ global.jsdom.defaultDocumentFeatures = {
             }
 
             _callback = callback;
-            _url = Regex.Replace(url, "\\r\\n", "\\\n");
+            _url = Regex.Replace(url, @"\r\n", @"\n");
             Init();
             LoadUrl();
         }
