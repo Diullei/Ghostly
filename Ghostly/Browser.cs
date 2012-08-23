@@ -91,7 +91,7 @@ namespace Ghostly
                     @"global.jsdom.env('{0}', function(errors, window) {{ 
                         global.window = window; 
                         require('js/jsdom/jQuery'); var $__$ = window.$.noConflict(); $__$.ready(); 
-                        if(window.$.ready) window.$.ready(); 
+                        if(window.$ != undefined) if(window.$.ready) window.$.ready(); 
                         $__browser__.Callback(errors); 
                     }})", _url));
         }

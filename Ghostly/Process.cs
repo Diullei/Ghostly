@@ -95,7 +95,7 @@ namespace Ghostly
                                                           {"TMPDIR", Path.GetTempPath()},
                                                           {"LANG", Environment.OSVersion.Platform.ToString()},
                                                           {"INFO_REQUIRE", true},
-                                                          {"DEBUG", (int)DebugLevel.None}
+                                                          {"DEBUG", (int)DebugLevel.Info}
                                                       };
 
         public Dictionary<string, object> env
