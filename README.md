@@ -30,8 +30,8 @@ static void Main(string[] args)
 		// using dynamic object
 		var html2 = window.document.getElementById("ghostly").innerHTML;
 
-		browser.Test.Assert(html1 == "Ghostly - C# Headless Browser!");
-		browser.Test.Assert(html2 == "Ghostly - C# Headless Browser!");
+		Assert.AreEqual("Ghostly - C# Headless Browser!", html1);
+		Assert.AreEqual("Ghostly - C# Headless Browser!", html2);
 	});
 }
 ```
@@ -39,15 +39,12 @@ static void Main(string[] args)
 ## TODO
 
 * Make it work on mono
-* Include tests
-* node.js files gateway
 * Correct implementation of the httpRequest on C#
-* ...
+* etc...
 
 ## External dependencies
 
 * Noesis.Javascript (V8 Engine wrapper)
-* Json.net
 
 ## Changelog
 
