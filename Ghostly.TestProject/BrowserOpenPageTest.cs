@@ -104,14 +104,14 @@ namespace Ghostly.TestProject
         public void ShouldLoadDocumentFromServer()
         {
             _browser.Visit("/browser/scripted", null, (errors, window)
-                => Assert.AreEqual(window.document.getElementById("h1").innerHTML, "Hello World"));
+                => Assert.AreEqual("Hello World", window.document.getElementById("h1").innerHTML));
         }
 
         [TestMethod]
         public void ShouldReturnStatusCodeOfLastRequest()
         {
             _browser.Visit("/browser/scripted", null, (errors, window)
-                => Assert.AreEqual(_browser.StatusCode, 200));
+                => Assert.AreEqual(200, _browser.StatusCode));
         }
 
         [TestMethod]
@@ -125,7 +125,7 @@ namespace Ghostly.TestProject
         public void ShouldExecuteInlineScriptBlocks()
         {
             _browser.Visit("/browser/scripted", null, (errors, window)
-                => Assert.AreEqual(window.document.title, "Nice"));
+                => Assert.AreEqual("Nice", window.document.title));
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace Ghostly.TestProject
         public void ShouldRunJQueryOnReady()
         {
             _browser.Visit("/browser/scripted2", null, (errors, window)
-                => Assert.AreEqual(window.document.title, "Awesome"));
+                => Assert.AreEqual("Awesome", window.document.title));
         }
 
         [TestMethod]
