@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Browser.cs" />
-    <Compile Include="BrowserOptions.cs" />
     <Compile Include="GhostlyScript.cs" />
     <Compile Include="Http.cs" />
     <Compile Include="HttpResponse.cs" />

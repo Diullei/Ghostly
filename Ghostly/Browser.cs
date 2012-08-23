@@ -96,7 +96,7 @@ namespace Ghostly
                     }})", _url));
         }
 
-        public void Visit(string url, BrowserOptions options, Action<string, dynamic> callback)
+        public void Visit(string url, Action<string, dynamic> callback)
         {
             if (Route.Interceptors.ContainsKey(url))
             {

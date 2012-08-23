@@ -96,56 +96,56 @@ namespace Ghostly.TestProject
         [TestMethod]
         public void ShouldCreateHtmlDocument()
         {
-            _browser.Visit("/browser/scripted", null, (errors, window) 
+            _browser.Visit("/browser/scripted", (errors, window) 
                 => Assert.IsTrue(_browser.ExecScript<bool>("window.document instanceof jsdom.dom.level3.html.HTMLDocument")));
         }
 
         [TestMethod]
         public void ShouldLoadDocumentFromServer()
         {
-            _browser.Visit("/browser/scripted", null, (errors, window)
+            _browser.Visit("/browser/scripted", (errors, window)
                 => Assert.AreEqual("Hello World", window.document.getElementById("h1").innerHTML));
         }
 
         [TestMethod]
         public void ShouldReturnStatusCodeOfLastRequest()
         {
-            _browser.Visit("/browser/scripted", null, (errors, window)
+            _browser.Visit("/browser/scripted", (errors, window)
                 => Assert.AreEqual(200, _browser.StatusCode));
         }
 
         [TestMethod]
         public void ShouldHaveAParent()
         {
-            _browser.Visit("/browser/scripted", null, (errors, window)
+            _browser.Visit("/browser/scripted", (errors, window)
                 => Assert.IsNotNull(window.parent));
         }
 
         [TestMethod]
         public void ShouldExecuteInlineScriptBlocks()
         {
-            _browser.Visit("/browser/scripted", null, (errors, window)
+            _browser.Visit("/browser/scripted", (errors, window)
                 => Assert.AreEqual("Nice", window.document.title));
         }
 
         [TestMethod]
         public void ShouldLoadExternalScripts()
         {
-            _browser.Visit("/browser/scripted2", null, (errors, window)
+            _browser.Visit("/browser/scripted2", (errors, window)
                 => Assert.IsNotNull(_browser.Js.window.jQuery));
         }
 
         [TestMethod]
         public void ShouldRunJQueryOnReady()
         {
-            _browser.Visit("/browser/scripted2", null, (errors, window)
+            _browser.Visit("/browser/scripted2", (errors, window)
                 => Assert.AreEqual("Awesome", window.document.title));
         }
 
         [TestMethod]
         public void ShouldIndicateSuccess()
         {
-            _browser.Visit("/browser/scripted2", null, (errors, window)
+            _browser.Visit("/browser/scripted2", (errors, window)
                 => Assert.IsTrue(_browser.Success));
         }
     }

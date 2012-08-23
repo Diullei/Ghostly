@@ -34,7 +34,7 @@ namespace Example
 	            </body>
             </html>";
 
-            browser.Visit(html, null, (errors, window) =>
+            browser.Visit(html, (errors, window) =>
             {
                 var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
                 var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
