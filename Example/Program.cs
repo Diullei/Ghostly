@@ -6,8 +6,8 @@ namespace Example
     {
         static void Main(string[] args)
         {
-            Test();
-            return;
+            //Test();
+            //return;
             var browser = new Browser();
             browser.Init();
 
@@ -80,7 +80,6 @@ $(function(){$(""title"").text(""Awesome"")});
                             
                         }
                     });
-
         }
     }
 }
