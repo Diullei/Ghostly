@@ -33,7 +33,13 @@ Compiler.prototype.compile = function () {
     }
 
     source = Compiler.wrap(preScript + '\n' + source);
-    eval(source)(this.exports, null, this, this.global, this.filename, null);
+    try {
+        eval(source)(this.exports, null, this, this.global, this.filename, null);
+    } catch (e) {
+        Log.fatal('compile source - Error: ' + e.message);
+        Log.fatal('compile source - Stack: ' + e.stack);
+        throw e;
+    }
 };
 
 {

@@ -189,6 +189,7 @@ exports.env = exports.jsdom.env = function () {
         window.document.implementation.addFeature('MutationEvents', ['2.0']);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
+        window.JSON = JSON;
         var scripts = window.document.getElementsByTagName('script');
 
         for (var i = 0; i < scripts.length; i++) {
@@ -204,10 +205,9 @@ exports.env = exports.jsdom.env = function () {
                       window.run(body);
                   });
             }
-          }
+        }
 
-        if (scripts)
-        {
+        if (scripts) {
             for (var i = 0; i < scripts.length; i++) {
                 var script = scripts[i];
                 var code = script.innerHTML;

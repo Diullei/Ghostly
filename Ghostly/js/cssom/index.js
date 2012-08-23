@@ -13,5 +13,7 @@ exports.CSSKeyframesRule = require('./CSSKeyframesRule').CSSKeyframesRule;
 exports.CSSKeyframeRule = require('./CSSKeyframeRule').CSSKeyframeRule;
 exports.parse = require('./parse').parse;
 exports.clone = require('./clone').clone;
-exports.CSSStyleDeclaration.parse = exports.parse;
-exports.CSSStyleSheet.parse = exports.parse;
+
+global.__css__parse = exports.parse;
+//exports.CSSStyleDeclaration.parse = exports.parse;
+//exports.CSSStyleSheet.parse = exports.parse;

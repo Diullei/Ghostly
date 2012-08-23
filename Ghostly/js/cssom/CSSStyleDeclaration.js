@@ -131,8 +131,7 @@ CSSOM.CSSStyleDeclaration.prototype = {
 		}
 		Array.prototype.splice.call(this, 0, this.length);
 		this._importants = {};
-
-		var dummyRule = CSSOM.parse('#bogus{' + cssText + '}').cssRules[0].style;
+		var dummyRule = global.__css__parse('#bogus{' + cssText + '}').cssRules[0].style;
 		var length = dummyRule.length;
 		for (i = 0; i < length; ++i) {
 			name = dummyRule[i];

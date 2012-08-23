@@ -43,6 +43,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+var functiontrace = eval('(function (exports) { ' + process.binding('functiontrace') + '\n return exports;})')({});
+
 var $__timerFunctionCallbackCollection__ = [];
 
 (function (process) {
@@ -843,6 +846,13 @@ var $__timerFunctionCallbackCollection__ = [];
 
         var fn = runInThisContext(source, this.filename, true);
         //fn(this.exports, NativeModule.require, this, this.filename);
+        ///
+//        if(this.id == 'JScript1.js')
+//        {
+//            Log.debug(':::::::');
+//            var source = functiontrace.traceInstrument(required.source)
+//        }
+//        ///
         eval(source)(this.exports, NativeModule.require, this, this.filename);
 
         this.loaded = true;
@@ -858,8 +868,6 @@ var $__timerFunctionCallbackCollection__ = [];
 })(process);
 
 (function (root) { 
-    var functiontrace = eval('(function (exports) { ' + process.binding('functiontrace') + '\n return exports;})')({});
-
     function ModuleLoader(id, dir) {
         this.filename = id + '.js';
         this.id = id;
@@ -934,7 +942,8 @@ var $__timerFunctionCallbackCollection__ = [];
                 this, 
                 this.filename);
         } catch (e) {
-            Log.fatal('compile module: ' + this.id + ' - ' + e.message);
+            Log.fatal('compile module(' + this.id + ') - Error: ' + e.message);
+            Log.fatal('compile module(' + this.id + ') - Stack: ' + e.stack);
             throw e;
         }
 
