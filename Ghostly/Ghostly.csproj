@@ -35,9 +35,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Dependencies\Json.net\Bin\Net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Noesis.Javascript">
       <HintPath>..\Dependencies\Noesis.Javascript\.Net4.0\x86\Noesis.Javascript.dll</HintPath>
     </Reference>
@@ -144,10 +141,6 @@
     <Content Include="js\cssom\StyleSheet.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="js\debug\escodegen.js" />
-    <EmbeddedResource Include="js\debug\esmorph.js" />
-    <EmbeddedResource Include="js\debug\esprima.js" />
-    <EmbeddedResource Include="js\debug\functiontrace.js" />
     <Content Include="js\jsdom\jQuery.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -47,7 +47,6 @@ Compiler.prototype.compile = function () {
 
     sandbox.run = function(code, filename) { 
         var compiler = new Compiler(code, filename, this);
-
         compiler.compile();
        return compiler.exports;
     };

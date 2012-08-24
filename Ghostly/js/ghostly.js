@@ -853,7 +853,14 @@ var $__timerFunctionCallbackCollection__ = [];
 //            var source = functiontrace.traceInstrument(required.source)
 //        }
 //        ///
-        eval(source)(this.exports, NativeModule.require, this, this.filename);
+        try {
+            eval(source)(this.exports, NativeModule.require, this, this.filename);
+        } catch (e) {
+            process.console('[fatal]:   compile module(' + this.id + ') - Error: ' + e.message);
+            process.console('[fatal]:   compile module(' + this.id + ') - Stack: ' + e.stack);
+            throw e;
+        }
+
 
         this.loaded = true;
     };
