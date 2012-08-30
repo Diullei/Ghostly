@@ -189,11 +189,19 @@ exports.env = exports.jsdom.env = function () {
         window.document.implementation.addFeature('MutationEvents', ['2.0']);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
+
+        var propNameSet = {};
+        for (var p in global) {
+            propNameSet[p] = true;
+        }
+
         window.JSON = JSON;
         var scripts = window.document.getElementsByTagName('script');
 
         for (var i = 0; i < scripts.length; i++) {
             var script = scripts[i];
+            var code = script.innerHTML;
+            var type = script.type;
             if (script.src) {
                 request({
                     uri: { href: script.src },
@@ -202,19 +210,11 @@ exports.env = exports.jsdom.env = function () {
                     proxy: config.proxy || null
                 },
                   function (err, request, body) {
-                      window.run(body);
+                      window.run(body, propNameSet);
                   });
             }
-        }
-
-        if (scripts) {
-            for (var i = 0; i < scripts.length; i++) {
-                var script = scripts[i];
-                var code = script.innerHTML;
-                var type = script.type;
-                if (type.trim() == '' || type.trim() == 'text/javascript') {
-                    window.run(code);
-                }
+            if (type.trim() == '' || type.trim() == 'text/javascript') {
+                window.run(code, propNameSet);
             }
         }
 

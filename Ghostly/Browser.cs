@@ -32,6 +32,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Ghostly.Test;
 
@@ -85,14 +86,33 @@ namespace Ghostly
 
         private void LoadUrl()
         {
+            var url = "null";
+            try
+            {
+                new Uri(_url);
+                url = string.Format("'{0}'", _url);
+            }
+            catch (Exception)
+            {
+            }
+
             GhostlyJS.Exec(
                 string.Format(
-                    @"global.jsdom.env('{0}', function(errors, window) {{ 
-                        global.window = window; 
-                        require('js/jsdom/jQuery'); var $__$ = window.$.noConflict(); $__$.ready(); 
-                        if(window.$ != undefined) if(window.$.ready) window.$.ready(); 
-                        $__browser__.Callback(errors); 
-                    }})", _url));
+        @"
+        $__filename = '{2}';
+        try {{
+            global.jsdom.env('{0}', [], {{ url: {1} }}, function(errors, window) {{ 
+                global.window = window; 
+                require('js/jsdom/jQuery'); $__$ = window.$.noConflict(); $__$.ready(); 
+                if(window.$ != undefined) if(window.$.ready) window.$.ready(); 
+                $__browser__.Callback(errors); 
+            }})
+        }} catch (e) {{
+            Log.fatal('compile module(' + this.id + ') - Error: ' + e.message);
+            Log.fatal('compile module(' + this.id + ') - Stack: ' + e.stack);
+            throw e;
+        }}
+", _url, url, Assembly.GetExecutingAssembly().Location.Replace("\\", "/")));
         }
 
         public void Visit(string url, Action<string, dynamic> callback)

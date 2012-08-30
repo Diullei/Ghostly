@@ -1,4 +1,5 @@
-﻿using Ghostly;
+﻿using System.Text.RegularExpressions;
+using Ghostly;
 
 namespace Example
 {
@@ -22,7 +23,7 @@ namespace Example
                         //comment
                         $(function(){$(""title"").text(""Awesome"")});
                         window.onload = function(e){ 
-                            console.log(""logging..onload""); 
+                            console.log(""logging...""); 
                         }
                     </script>
                     <script type=""text/x-do-not-parse"">

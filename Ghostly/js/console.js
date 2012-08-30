@@ -39,7 +39,7 @@ exports.error = exports.warn;
 
 
 exports.dir = function(object) {
-  process.stdout.write(util.inspect(object) + '\n');
+    $__stdout__.write(util.inspect(object) + '\n');
 };
 
 
@@ -75,4 +75,8 @@ exports.assert = function(expression) {
     var arr = Array.prototype.slice.call(arguments, 1);
     require('assert').ok(false, util.format.apply(this, arr));
   }
+};
+
+exports.readln = function (value) {
+    return $__stdout__.Readln();
 };

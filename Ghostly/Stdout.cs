@@ -43,5 +43,10 @@ namespace Ghostly
                 Console.Write(s.Value);
             }
         }
+
+        public string Readln()
+        {
+            return Console.ReadLine();
+        }
     }
 }

@@ -7,10 +7,11 @@ var http          = require('http'),
     HTMLDecode    = htmlencoding.HTMLDecode,
     Contextify    = null;
 
-function Compiler(code, filename, global) {
-    this.filename = filename;
+var esprima = eval('(function (exports) { ' + process.binding('esprima') + '\n return exports;})({})');
+
+function Compiler(code, context) {
     this.code = code;
-    this.global = global;
+    this.context = context;
     this.exports = {};
 }
 
@@ -19,22 +20,34 @@ Compiler.wrap = function (script) {
 };
 
 Compiler.wrapper = [
-'(function (exports, require, module, window, __filename, __dirname) { ',
+'(function (window) {',
 '\n});'
 ];
 
 Compiler.prototype.compile = function () {
     var source = this.code;
-
-    var preScript = '';
-
-    for(var objName in this.global){
+    
+    var preScript = 'var exports = undefined; ';
+    for(var objName in this.context){
       preScript += 'var ' + objName + ' = window.' + objName + ';';
     }
 
-    source = Compiler.wrap(preScript + '\n' + source);
+    var posScript = '';
+    // get name of all local variables
+    var tree = esprima.parse(this.code, { range: true, loc: true });
+
+    for(var i = 0; i < tree.body.length; i++){
+        var b = tree.body[i];
+        if(b.type == 'VariableDeclaration') {
+            posScript += ';this.' + b.declarations[0].id.name + '=' + b.declarations[0].id.name + ';';
+        }
+    }
+    ///////
+
+    source = Compiler.wrap(preScript + '\n' + source + '\n' + posScript);
+
     try {
-        eval(source)(this.exports, null, this, this.global, this.filename, null);
+        eval(source).call(this.context, this.context);
     } catch (e) {
         Log.fatal('compile source - Error: ' + e.message);
         Log.fatal('compile source - Stack: ' + e.stack);
@@ -45,9 +58,25 @@ Compiler.prototype.compile = function () {
 {
   Contextify = function(sandbox) {
 
-    sandbox.run = function(code, filename) { 
-        var compiler = new Compiler(code, filename, this);
+    sandbox.run = function(code, propNameSet) { 
+        var compiler = new Compiler(code, this);
         compiler.compile();
+
+        for(var p in global){
+            if(!propNameSet[p]){
+                this[p] = global[p];
+            }
+        }
+
+       //Log.debug(functiontrace.getLocals( eval( '(function(){' + code + '})' ) ));
+       //var vars = functiontrace.getLocals( eval( '(function(){' + code + '})' ) );
+       /*if(vars.length > 1) {
+        for(var i = 1; i < vars.length; i++){
+            
+        }
+       }*/
+
+
        return compiler.exports;
     };
 
@@ -55,18 +84,18 @@ Compiler.prototype.compile = function () {
       return this;
     };
 
-    sandbox.dispose = function() {
-      global = null;
-      sandbox.run = function () {
-        throw new Error("Called run() after dispose().");
-      };
-      sandbox.getGlobal = function () {
-        throw new Error("Called getGlobal() after dispose().");
-      };
-      sandbox.dispose = function () {
-        throw new Error("Called dispose() after dispose().");
-      };
-    };
+//    sandbox.dispose = function() {
+//      global = null;
+//      sandbox.run = function () {
+//        throw new Error("Called run() after dispose().");
+//      };
+//      sandbox.getGlobal = function () {
+//        throw new Error("Called getGlobal() after dispose().");
+//      };
+//      sandbox.dispose = function () {
+//        throw new Error("Called dispose() after dispose().");
+//      };
+//    };
 
     return sandbox;
   };
@@ -156,14 +185,14 @@ exports.createWindow = function(dom, options) {
   }
 
   function DOMWindow(options) {
-    var href = (options || {}).url || 'file://' + __filename;
+    var href = (options || {}).url || 'file://' + $__filename;
+    if(href == '/') href = 'file://' + $__filename;
     this.location = URL.parse(href);
     this.location.reload = NOT_IMPLEMENTED(this);
     this.location.replace = NOT_IMPLEMENTED(this);
     this.location.toString = function() {
       return href;
     };
-
     var window = this.console._window = this;
 
     /* Location hash support */

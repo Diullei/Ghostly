@@ -44,8 +44,6 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-var functiontrace = eval('(function (exports) { ' + process.binding('functiontrace') + '\n return exports;})')({});
-
 var $__timerFunctionCallbackCollection__ = [];
 
 (function (process) {
@@ -85,6 +83,27 @@ var $__timerFunctionCallbackCollection__ = [];
             else if (configLevel >= 2 && level == this.WARN) console.log("%s[warn]%s:  %s", this.YELLOW, this.DEFAULT, value);
             else if (configLevel >= 1 && level == this.ERROR) console.log("%s[error]%s: %s", this.MAGENTA, this.DEFAULT, value);
             else if (configLevel >= 0 && level == this.FATAL) console.log("%s[fatal]%s: %s", this.RED, this.DEFAULT, value);
+        },
+
+        breakpoint: function(ctx /* can be null, defalt is 'global' */){
+            console.log("%s[%s*%s] %sBREAKPOINT%s =========================================%s", this.RED, this.YELLOW, this.RED, this.YELLOW, this.RED, this.DEFAULT);
+
+            while(line != 'exit') {
+                var line = console.readln();
+                console.log(this.YELLOW);
+                try {
+                    console.log(eval( '(function(){return ' + line + '\n})' ).call(ctx || global));
+                } catch (e) {
+                    console.log(this.RED);
+                    console.log(e.message);
+                }
+                console.log(this.DEFAULT);
+            }
+            console.log("%s[%sOUT%s] ==================================================%s", this.RED, this.YELLOW, this.RED, this.DEFAULT);
+        },
+
+        bp : function(){
+            this.breakpoint();
         }
     };
 
@@ -932,7 +951,8 @@ var $__timerFunctionCallbackCollection__ = [];
         var required = ModuleLoader.getSource(this.id, this.dir);
         this.dir = required.dirname;
         ///
-        ///var source = functiontrace.traceInstrument(required.source)
+        //var source = functiontrace.traceInstrument('(' + required.source + ')')
+        //var source = functiontrace.traceInstrument(required.source)
         ///
         source = ModuleLoader.wrap(required.source);
 

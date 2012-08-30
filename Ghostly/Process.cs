@@ -45,10 +45,10 @@ namespace Ghostly
             _natives_exports["http_parser"] = "exports.urlDecode = {}";
 
             // to debug
-            _natives_exports["escodegen"] = Util.GetResource("debug.escodegen");
-            _natives_exports["esmorph"] = Util.GetResource("debug.esmorph");
-            _natives_exports["esprima"] = Util.GetResource("debug.esprima");
-            _natives_exports["functiontrace"] = Util.GetResource("debug.functiontrace");
+            _natives_exports["escodegen"] = Util.GetResource("reflection.escodegen");
+            _natives_exports["esmorph"] = Util.GetResource("reflection.esmorph");
+            _natives_exports["esprima"] = Util.GetResource("reflection.esprima");
+            _natives_exports["functiontrace"] = Util.GetResource("reflection.functiontrace");
 
             _args = args;
             _ghostlyJS = ghostlyJS;
@@ -95,7 +95,7 @@ namespace Ghostly
                                                           {"TMPDIR", Path.GetTempPath()},
                                                           {"LANG", Environment.OSVersion.Platform.ToString()},
                                                           {"INFO_REQUIRE", true},
-                                                          {"DEBUG", (int)DebugLevel.Info}
+                                                          {"DEBUG", (int)DebugLevel.None}
                                                       };
 
         public Dictionary<string, object> env

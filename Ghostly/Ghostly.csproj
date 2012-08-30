@@ -141,6 +141,10 @@
     <Content Include="js\cssom\StyleSheet.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="js\reflection\escodegen.js" />
+    <EmbeddedResource Include="js\reflection\esmorph.js" />
+    <EmbeddedResource Include="js\reflection\esprima.js" />
+    <EmbeddedResource Include="js\reflection\functiontrace.js" />
     <Content Include="js\jsdom\jQuery.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
