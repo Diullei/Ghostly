@@ -38,9 +38,7 @@ namespace Ghostly
                             {
                                 Code = 200,
                                 Message = "OK",
-                                Body = _uri.Contains("qunit-git")?  
-                                    Util.GetResource("qunit-git.js")
-                                    :new StreamReader(wr.GetResponse().GetResponseStream()).ReadToEnd()
+                                Body = new StreamReader(wr.GetResponse().GetResponseStream()).ReadToEnd()
                             };
             }
 
