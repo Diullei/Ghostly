@@ -447,7 +447,7 @@ core.DOMError.prototype.__defineGetter__('relatedException', function() {
 core.DOMError.prototype.__defineGetter__('relatedData', function() {
   return this._relatedData;
 });
-core.DOMError.prototype.__defineGetter__('location', function() {
+core.DOMError.prototype.__defineGetter__('location', function () {
   return this._location;
 });
 

@@ -1290,6 +1290,7 @@ define('HTMLScriptElement', {
     },
     get language() {
       var type = this.type || "text/javascript";
+      Log.fatal('#1');
       return type.split("/").pop().toLowerCase();
     },
     get text() {

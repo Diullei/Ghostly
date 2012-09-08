@@ -35,6 +35,22 @@ namespace Ghostly.TestProject
                       </html>"
                 });
 
+            _browser.Route.Interceptors.Add("/browser/scripted3", () =>
+                new HttpResponse
+                {
+                    Body = @"
+                      <html>
+                        <head>
+                          <title></title>
+                        </head>
+                        <body>
+                          <script>
+                            window.location = ""http://www.google.com"";
+                          </script>
+                        </body>
+                      </html>"
+                });
+
             _browser.Route.Interceptors.Add("/jquery.js", () => new HttpResponse { Body = File.ReadAllText("TestSrc\\jQuery-1.6.0.js") });
         }
 
@@ -50,6 +66,16 @@ namespace Ghostly.TestProject
         {
             _browser.Visit("/browser/scripted", (errors, window)
                 => Assert.IsNotNull(window));
+        }
+
+        [TestMethod]
+        public void WindowLocationTest()
+        {
+            _browser.Visit("/browser/scripted3", (errors, window)
+                =>
+                                                    {
+                                                        
+                                                    });
         }
     }
 }

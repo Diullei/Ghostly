@@ -7,6 +7,8 @@ var http          = require('http'),
     HTMLDecode    = htmlencoding.HTMLDecode,
     Contextify    = null;
 
+request = require('request').request;
+
 var esprima = eval('(function (exports) { ' + process.binding('esprima') + '\n return exports;})({})');
 
 function Compiler(code, context) {
@@ -187,38 +189,91 @@ exports.createWindow = function(dom, options) {
   function DOMWindow(options) {
     var href = (options || {}).url || 'file://' + $__filename;
     if(href == '/') href = 'file://' + $__filename;
-    this.location = URL.parse(href);
-    this.location.reload = NOT_IMPLEMENTED(this);
-    this.location.replace = NOT_IMPLEMENTED(this);
-    this.location.toString = function() {
-      return href;
-    };
+
+    this.__defineSetter__("location", function(val) {
+        request({
+            uri: { href: val },
+            encoding: 'utf8',
+            headers: {},
+            proxy: null
+        },
+        function (err, request, body) {
+            //Log.debug(body);
+            var jsdom = require("js/jsdom/jsdom").jsdom;
+            jsdom.env(body, function(errors, window) {
+                global.window = window; 
+            });
+        });
+    });
+    
+    var self = this;
+    this.__defineGetter__("location", function() {
+        var loc = URL.parse(href);
+        loc.reload = NOT_IMPLEMENTED(self);
+        loc.replace = NOT_IMPLEMENTED(self);
+        loc.toString = function() {return href;};
+
+        /* Location hash support */
+        loc.__defineGetter__("hash", function() {
+          return (window.location.href.split("#").length > 1)
+            ? "#"+window.location.href.split("#")[1]
+            : "";
+        });
+
+        loc.__defineSetter__("hash", function(val) {
+          /* TODO: Should fire a hashchange event, but tests aren't working */
+          window.location.href = window.location.href.split("#")[0] + val;
+        });
+
+        /* Location search support */
+        loc.__defineGetter__("search", function() {
+          return (window.location.href.split("?").length > 1)
+            ? "?"+window.location.href.match(/\?([^#]+)/)[1]
+            : "";
+        });
+
+        loc.__defineSetter__("search", function(val) {
+          window.location.href = (window.location.href.indexOf("?") > 0)
+            ? window.location.href.replace(/\?([^#]+)/, val)
+            : window.location.href.match(/^([^#?]+)/)[0] + val + window.location.hash;
+        });
+
+        return loc;
+    });
+
+//    this.location = URL.parse(href);
+//    this.location.reload = NOT_IMPLEMENTED(this);
+//    this.location.replace = NOT_IMPLEMENTED(this);
+//    this.location.toString = function() {
+//      return href;
+//    };
+
     var window = this.console._window = this;
 
     /* Location hash support */
-    this.location.__defineGetter__("hash", function() {
-      return (window.location.href.split("#").length > 1)
-        ? "#"+window.location.href.split("#")[1]
-        : "";
-    });
+//    this.location.__defineGetter__("hash", function() {
+//      return (window.location.href.split("#").length > 1)
+//        ? "#"+window.location.href.split("#")[1]
+//        : "";
+//    });
 
-    this.location.__defineSetter__("hash", function(val) {
-      /* TODO: Should fire a hashchange event, but tests aren't working */
-      window.location.href = window.location.href.split("#")[0] + val;
-    });
+//    this.location.__defineSetter__("hash", function(val) {
+//      /* TODO: Should fire a hashchange event, but tests aren't working */
+//      window.location.href = window.location.href.split("#")[0] + val;
+//    });
 
-    /* Location search support */
-    this.location.__defineGetter__("search", function() {
-      return (window.location.href.split("?").length > 1)
-        ? "?"+window.location.href.match(/\?([^#]+)/)[1]
-        : "";
-    });
+//    /* Location search support */
+//    this.location.__defineGetter__("search", function() {
+//      return (window.location.href.split("?").length > 1)
+//        ? "?"+window.location.href.match(/\?([^#]+)/)[1]
+//        : "";
+//    });
 
-    this.location.__defineSetter__("search", function(val) {
-      window.location.href = (window.location.href.indexOf("?") > 0)
-        ? window.location.href.replace(/\?([^#]+)/, val)
-        : window.location.href.match(/^([^#?]+)/)[0] + val + window.location.hash;
-    });
+//    this.location.__defineSetter__("search", function(val) {
+//      window.location.href = (window.location.href.indexOf("?") > 0)
+//        ? window.location.href.replace(/\?([^#]+)/, val)
+//        : window.location.href.match(/^([^#?]+)/)[0] + val + window.location.hash;
+//    });
 
     if (options && options.document) {
       options.document.location = this.location;

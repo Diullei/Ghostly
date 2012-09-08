@@ -85,6 +85,7 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
     querystring = require('querystring');
 
 function urlParse(url, parseQueryString, slashesDenoteHost) {
+
   if (url && typeof(url) === 'object' && url.href) return url;
 
   if (typeof url !== 'string') {
@@ -220,7 +221,7 @@ function urlParse(url, parseQueryString, slashesDenoteHost) {
       }
     }
 
-    // hostnames are always lower case.
+// hostnames are always lower case.
     out.hostname = out.hostname.toLowerCase();
 
     if (!ipv6Hostname) {

@@ -141,6 +141,7 @@
     <Content Include="js\cssom\StyleSheet.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="js\qunit-git.js" />
     <EmbeddedResource Include="js\reflection\escodegen.js" />
     <EmbeddedResource Include="js\reflection\esmorph.js" />
     <EmbeddedResource Include="js\reflection\esprima.js" />

@@ -101,6 +101,7 @@ if (isWindows) {
         path = process.env['=' + resolvedDevice];
         // Verify that a drive-local cwd was found and that it actually points
         // to our drive. If not, default to the drive's root.
+        Log.fatal('#2');
         if (!path || path.slice(0, 3).toLowerCase() !==
             resolvedDevice.toLowerCase() + '\\') {
           path = resolvedDevice + '\\';
