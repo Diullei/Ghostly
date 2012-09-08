@@ -2,51 +2,15 @@
 
 > UNDER DEVELOPMENT.
 
-### Example
-
-```csharp
-static void Main(string[] args)
-{
-	var browser = new Browser();
-	browser.Init();
-
-	var html = @"
-				<!DOCTYPE HTML>
-				<html lang=""en-US"">
-					<head>
-						<meta charset=""UTF-8"">
-						<title></title>
-					</head>
-					<body>
-						<div id=""ghostly"">Ghostly - C# Headless Browser!</div>
-					</body>
-				</html>";
-
-	browser.Visit(html, null, (errors, window) =>
-	{
-		// using ExecScript method
-		var html0 = browser.ExecScript<string>("window.document.body.innerHTML");
-		var html1 = browser.ExecScript<string>("window.document.getElementById('ghostly').innerHTML");
-		// using dynamic object
-		var html2 = window.document.getElementById("ghostly").innerHTML;
-
-		Assert.AreEqual("Ghostly - C# Headless Browser!", html1);
-		Assert.AreEqual("Ghostly - C# Headless Browser!", html2);
-	});
-}
-```
-
-## TODO
-
-* Make it work on mono
-* Correct implementation of the httpRequest on C#
-* etc...
-
 ## External dependencies
 
-* Noesis.Javascript (V8 Engine wrapper)
+* PhantomJs
 
 ## Changelog
+
+### v0.3.0 (2012-09-08)
+
+* I erased everything and started from scratch using phantomjs
 
 ### v0.2.1 (2012-08-19)
 
