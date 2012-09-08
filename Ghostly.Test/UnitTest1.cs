@@ -18,8 +18,7 @@ namespace Ghostly.Test
             browser.Visit("http://diullei.github.com", () =>
             {
                 result = browser.Run("document.title");
-
-                result = result + "!";
+                Assert.AreEqual("Diullei Gomes", result);
             });
         }
     }
