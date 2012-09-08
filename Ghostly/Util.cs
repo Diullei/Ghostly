@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 using System.Reflection;
 
@@ -9,36 +6,39 @@ namespace Ghostly
 {
     public class Util
     {
-        public static string GetResource(string id)
+        public static void CopyStream(Stream input, Stream output)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            // Insert null checking here for production
+            var buffer = new byte[8192];
 
-            if (string.IsNullOrWhiteSpace(id))
-                return null;
+            int bytesRead;
+            while ((bytesRead = input.Read(buffer, 0, buffer.Length)) > 0)
+            {
+                output.Write(buffer, 0, bytesRead);
+            }
+        }
 
-            if (!id.EndsWith(".js"))
-                id += ".js";
-
+        public static string GetResource(string path)
+        {
             try
             {
-                return new StreamReader(assembly.GetManifestResourceStream("Ghostly." + id)).ReadToEnd();
+                return new StreamReader(
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("Ghostly" + path.Replace("/", "."))).ReadToEnd();
             }
             catch (Exception)
             {
-                try
+                return string.Format("<html><body>Resource not found: {0}</body></html>", path);
+            }
+        }
+
+        public static void CreateTempFile(string resource, string name)
+        {
+            using (var input = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
+            {
+                using (var output = File.Create(name))
                 {
-                    return new StreamReader(assembly.GetManifestResourceStream("Ghostly.js." + id)).ReadToEnd();
-                }
-                catch (Exception)
-                {
-                    if (File.Exists(id))
-                    {
-                        return File.ReadAllText(id);
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    CopyStream(input, output);
                 }
             }
         }

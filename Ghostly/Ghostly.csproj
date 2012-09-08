@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{597A9D63-8251-4493-9989-CEABE92AC75E}</ProjectGuid>
+    <ProjectGuid>{DB2D533A-298D-4FD2-8618-4016FB3AF553}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ghostly</RootNamespace>
@@ -17,11 +17,10 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,15 +30,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Noesis.Javascript">
-      <HintPath>..\Dependencies\Noesis.Javascript\.Net4.0\x86\Noesis.Javascript.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,176 +42,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Browser.cs" />
-    <Compile Include="GhostlyScript.cs" />
-    <Compile Include="Http.cs" />
-    <Compile Include="HttpResponse.cs" />
-    <Compile Include="IGhostlyJS.cs" />
-    <Compile Include="Ghostly.cs" />
-    <Compile Include="Command.cs" />
-    <Compile Include="JsTimer.cs" />
-    <Compile Include="Process.cs" />
+    <Compile Include="PhEvents\CommandSet.cs" />
+    <Compile Include="HttpServer.cs" />
+    <Compile Include="PhEvents\ICommand.cs" />
+    <Compile Include="PhEvents\JQueryCommand.cs" />
+    <Compile Include="PhEvents\MainHtmlCommand.cs" />
+    <Compile Include="PhEvents\OnLoadCommand.cs" />
+    <Compile Include="PhantomjsWrapper.cs" />
+    <Compile Include="ProcessHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Request.cs" />
-    <Compile Include="Response.cs" />
-    <Compile Include="Route.cs" />
-    <Compile Include="Stdout.cs" />
-    <Compile Include="Test\TestSuite.cs" />
-    <Compile Include="TimerObject.cs" />
+    <Compile Include="Script.cs" />
+    <Compile Include="PhEvents\ScriptCallbackCommand.cs" />
+    <Compile Include="PhEvents\ScriptCommand.cs" />
+    <Compile Include="ScriptSet.cs" />
     <Compile Include="Util.cs" />
-    <Compile Include="GhostlyJS.cs" />
-    <Compile Include="Version.cs" />
-    <Compile Include="JsObjecProxy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="js\domain.js" />
-    <EmbeddedResource Include="js\events.js" />
-    <EmbeddedResource Include="js\ghostly.js" />
-    <EmbeddedResource Include="js\util.js" />
+    <EmbeddedResource Include="js_boot.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="js\buffer.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="js\assert.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="js\module.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="js\path.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="js\tty.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="js\request.js" />
-    <EmbeddedResource Include="js\vm.js" />
-    <EmbeddedResource Include="js\tty_wrap.js" />
-    <EmbeddedResource Include="js\console.js" />
-    <EmbeddedResource Include="js\querystring.js" />
-    <EmbeddedResource Include="js\punycode.js" />
-    <EmbeddedResource Include="js\url.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="js\cssom\clone.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSFontFaceRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSImportRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSKeyframeRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSKeyframesRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSMediaRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSStyleDeclaration.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSStyleRule.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\CSSStyleSheet.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\MediaList.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\parse.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\cssom\StyleSheet.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <EmbeddedResource Include="js\qunit-git.js" />
-    <EmbeddedResource Include="js\reflection\escodegen.js" />
-    <EmbeddedResource Include="js\reflection\esmorph.js" />
-    <EmbeddedResource Include="js\reflection\esprima.js" />
-    <EmbeddedResource Include="js\reflection\functiontrace.js" />
-    <Content Include="js\jsdom\jQuery.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="js\jsdom\jsdom.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <EmbeddedResource Include="js\jsdom\jsdom\browser\documentfeatures.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\browser\domtohtml.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\browser\htmlencoding.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\browser\htmltodom.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\browser\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\htmlparser.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level1\core.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\core.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\events.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\html.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\languages\javascript.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level2\style.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\core.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\events.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\html.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\ls.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\level3\xpath.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\selectors\index.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\selectors\sizzle.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <EmbeddedResource Include="js\jsdom\jsdom\utils.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="jquery.js" />
+    <EmbeddedResource Include="main.html" />
+    <EmbeddedResource Include="phantomjs.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
