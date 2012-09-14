@@ -21,6 +21,9 @@ namespace Ghostly
 
         public void Visit(bool showPh, string url, Action action)
         {
+            if (url.ToUpper().StartsWith("HTTPS:"))
+                throw new Exception("Request to Https protocol is not working yet.");
+
             using (_ph = new PhantomjsWrapper())
             {
                 _ph.Run(showPh, "--web-security=no", 1234, url, action);
