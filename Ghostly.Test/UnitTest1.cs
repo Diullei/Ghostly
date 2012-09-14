@@ -15,7 +15,7 @@ namespace Ghostly.Test
             var browser = new Browser();
             var result = "";
 
-            browser.Visit("http://diullei.github.com", () =>
+            browser.Visit(true, "http://diullei.github.com", () =>
             {
                 result = browser.Run("document.title");
                 Assert.AreEqual("Diullei Gomes", result);

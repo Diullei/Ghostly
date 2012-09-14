@@ -40,7 +40,7 @@ namespace Ghostly
             }
         }
 
-        public void Run(string args, int port, string url, Action acion)
+        public void Run(bool showPh, string args, int port, string url, Action acion)
         {
             _server = new HttpServer(acion, url, this);
             _server.Start(string.Format("http://localhost:{0}/", port));
@@ -48,7 +48,7 @@ namespace Ghostly
             CreatePhantomJsExe();
             CreateJsBoot(url, port);
 
-            _process = ProcessHelper.CreateAndStartProcess(_exeName, string.Format("{0} {1}", args, _jsBootName));
+            _process = ProcessHelper.CreateAndStartProcess(showPh, _exeName, string.Format("{0} {1}", args, _jsBootName));
         }
 
         public string Script(string code)

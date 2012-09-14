@@ -8,24 +8,24 @@ namespace Ghostly
 {
     public class ProcessHelper
     {
-        public static Process CreateAndStartProcess(string target, string args)
+        public static Process CreateAndStartProcess(bool showPh, string target, string args)
         {
             var process = new Process
                               {
                                   StartInfo =
                                       {
-                                          UseShellExecute = false,
-                                          CreateNoWindow = true,
-                                          WindowStyle = ProcessWindowStyle.Hidden,
+                                          UseShellExecute = showPh,
+                                          CreateNoWindow = !showPh,
+                                          WindowStyle = showPh ? ProcessWindowStyle.Normal : ProcessWindowStyle.Hidden,
                                           FileName = target,
                                           Arguments = args,
-                                          RedirectStandardError = true,
-                                          RedirectStandardOutput = true
+                                          RedirectStandardError = !showPh,
+                                          RedirectStandardOutput = !showPh
                                       }
                               };
 
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = showPh;
+            process.StartInfo.CreateNoWindow = !showPh;
             process.Start();
 
             return process;

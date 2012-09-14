@@ -16,9 +16,14 @@ namespace Ghostly
 
         public void Visit(string url, Action action)
         {
+            Visit(false, url, action);
+        }
+
+        public void Visit(bool showPh, string url, Action action)
+        {
             using (_ph = new PhantomjsWrapper())
             {
-                _ph.Run("--web-security=no", 1234, url, action);
+                _ph.Run(showPh, "--web-security=no", 1234, url, action);
             }
         }
 
