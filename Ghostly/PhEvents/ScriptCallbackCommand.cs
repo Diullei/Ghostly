@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace Ghostly.PhEvents
 {
@@ -26,21 +28,14 @@ namespace Ghostly.PhEvents
             //add request data at bottom of page
             if (request.HasEntityBody)
             {
-                System.IO.Stream body = request.InputStream;
-                System.Text.Encoding encoding = request.ContentEncoding;
-                System.IO.StreamReader reader = new System.IO.StreamReader(body, encoding);
-                //if (request.ContentType.ToLower() == "application/x-www-form-urlencoded")
+                var s = new StreamReader(request.InputStream).ReadToEnd();
+                //string s = reader.ReadToEnd();
+                string[] pairs = s.Split('&');
+                for (int x = 0; x < pairs.Length; x++)
                 {
-                    string s = reader.ReadToEnd();
-                    string[] pairs = s.Split('&');
-                    for (int x = 0; x < pairs.Length; x++)
-                    {
-                        string[] item = pairs[x].Split('=');
-                        formVars.Add(item[0], System.Web.HttpUtility.UrlDecode(item[1]));
-                    }
+                    string[] item = pairs[x].Split('=');
+                    formVars.Add(item[0], System.Web.HttpUtility.UrlDecode(item[1]));
                 }
-                body.Close();
-                reader.Close();
             }
             return formVars;
         }
@@ -49,10 +44,10 @@ namespace Ghostly.PhEvents
         {
             try
             {
-                //var vars = GetFormValues(request);
+                var vars = GetFormValues(request);
 
-                var script = _scripts.Where(s => s.Id == request.QueryString["id"]).First();
-                script.Result = request.QueryString["result"];
+                var script = _scripts.Where(s => s.Id == (string)vars["id"]).First();
+                script.Result = (string)vars["result"];
                 script.Resolved = true;
                 _scripts.Remove(script);
             }

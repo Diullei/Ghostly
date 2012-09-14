@@ -33,10 +33,9 @@ page.onLoadFinished = function () {
                         try {
                             var res = null;
                             eval('res = $wnd.' + data.script);
-                            $.get('/callback?id=' + data.id + '&result=' + res);
-                            //$.post('/callback', { id: data.split('|')[0], result: res });
+                            $.post('/callback', { id: data.id, result: res });
                         } catch (e) {
-                            $.get('/callback?id=' + data.id + '&result=');
+                            $.post('/callback?id=' + data.id + '&result=');
                         }
                     },
                     error: function (e) {
