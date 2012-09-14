@@ -6,6 +6,7 @@ namespace Ghostly
     {
         private readonly int _port;
         private PhantomjsWrapper _ph;
+        private int _timeOut = 15;
 
         public Browser() : this(-1) { }
 
@@ -16,7 +17,7 @@ namespace Ghostly
 
         public void Visit(string url, Action action)
         {
-            Visit(false, 15, url, action);
+            Visit(false, _timeOut, url, action);
         }
 
         public void Visit(int timeOut, string url, Action action)
@@ -26,7 +27,7 @@ namespace Ghostly
 
         public void Visit(bool showPh, string url, Action action)
         {
-            Visit(showPh, 15, url, action);
+            Visit(showPh, _timeOut, url, action);
         }
 
         public void Visit(bool showPh, int timeOut, string url, Action action)

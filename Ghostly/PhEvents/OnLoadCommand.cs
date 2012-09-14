@@ -30,13 +30,11 @@ namespace Ghostly.PhEvents
             Thread bigStackThread = new Thread(operation, 1024 * 1024);
 
             bigStackThread.Start();
-            //bigStackThread.Join();
         }
 
         public string Exec(HttpListenerRequest request)
         {
             ExecuteInBiggerStackThread(_action);
-            //_action.Invoke();
             return "";
         }
     }

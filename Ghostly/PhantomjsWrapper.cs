@@ -15,7 +15,9 @@ namespace Ghostly
         private readonly string _jsBootName;
         private Process _process;
         private HttpServer _server;
-        private int _timeOutCount = 15;
+        private int _timeOut;
+        private int _timeOutCountDown;
+        private bool _stopCountDown = true;
 
         public bool IsCallbackFinish { get; set; }
 
@@ -43,7 +45,7 @@ namespace Ghostly
 
         public void Run(int timeOut, bool showPh, string args, int port, string url, Action acion)
         {
-            _timeOutCount = timeOut;
+            _timeOut = timeOut;
 
             _server = new HttpServer(acion, url, this);
             _server.Start(string.Format("http://localhost:{0}/", port));
@@ -58,10 +60,14 @@ namespace Ghostly
         {
             var script = new Script(code);
             _server.AddScript(script);
+
+            _timeOutCountDown = _timeOut;
+            _stopCountDown = false;
             while (!script.Resolved)
             {
                 Thread.Sleep(500);
             }
+            _stopCountDown = true;
 
             return script.Result;
         }
@@ -70,7 +76,7 @@ namespace Ghostly
         {
             while (IsCallbackFinish)
             {
-                if (_timeOutCount < 0)
+                if (_timeOutCountDown < 0)
                 {
                     _server.Scripts.ForEach(s =>
                                                 {
@@ -81,7 +87,9 @@ namespace Ghostly
                 }
 
                 Thread.Sleep(1000);
-                _timeOutCount--;
+
+                if (!_stopCountDown)
+                    _timeOutCountDown--;
             }
 
             _process.Kill();
