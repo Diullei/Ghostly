@@ -11,26 +11,26 @@ namespace Ghostly
     {
         readonly PhEventSet _commands;
         readonly HttpListener _listener;
-        readonly ScriptSet _scripts;
+        public readonly ScriptSet Scripts;
 
         public HttpServer(Action action, string url, PhantomjsWrapper wrapper)
         {
             _listener = new HttpListener();
-            _scripts = new ScriptSet();
+            Scripts = new ScriptSet();
 
             _commands = new PhEventSet 
             { 
                 new OnLoadPhEvent(action, wrapper), 
                 new MainHtmlPhEvent(),
                 new JQueryPhEvent(),
-                new ScriptPhEvent(_scripts),
-                new CallbackPhEvent(_scripts)
+                new ScriptPhEvent(Scripts),
+                new CallbackPhEvent(Scripts)
             };
         }
 
         public void AddScript(Script script)
         {
-            _scripts.Add(script);
+            Scripts.Add(script);
         }
 
         public void Start(string url)

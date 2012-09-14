@@ -4,6 +4,13 @@ page.settings.loadImages = false;
 
 page.onAlert = function (msg) { console.log(msg); };
 
+page.onError = function (msg, trace) {
+    console.log(msg);
+    trace.forEach(function (item) {
+        console.log('  ', item.file, ':', item.line);
+    })
+}
+
 page.onConsoleMessage = function (msg) {
     // Encerra o phantom se o processo principal terminar.
     if (msg == 'COM REQUEST FAIL: 0')
@@ -13,12 +20,16 @@ page.onConsoleMessage = function (msg) {
 };
 
 var count = 0;
-page.onLoadFinished = function () {
+page.onLoadFinished = function (status) {
+    console.log(status);
+    if (status == 'fail')
+        phantom.exit();
+
     (0 == count++) && page.evaluate(function () {
         var i = document.createElement('iframe');
         i.src = '###=URL=###';
         i.onload = function () {
-            console.log('page loaded...');
+            console.log('page loaded');
             var $wnd = this.contentWindow;
 
             function getScript() {
@@ -35,7 +46,7 @@ page.onLoadFinished = function () {
                             eval('res = $wnd.' + data.script);
                             $.post('/callback', { id: data.id, result: res });
                         } catch (e) {
-                            $.post('/callback?id=' + data.id + '&result=');
+                            $.post('/callback', { id: data.id, result: '' });
                         }
                     },
                     error: function (e) {
@@ -49,6 +60,7 @@ page.onLoadFinished = function () {
             getScript();
             setInterval(getScript, 500);
         };
+
         document.body.appendChild(i);
     });
 };

@@ -16,17 +16,27 @@ namespace Ghostly
 
         public void Visit(string url, Action action)
         {
-            Visit(false, url, action);
+            Visit(false, 15, url, action);
+        }
+
+        public void Visit(int timeOut, string url, Action action)
+        {
+            Visit(false, timeOut, url, action);
         }
 
         public void Visit(bool showPh, string url, Action action)
+        {
+            Visit(showPh, 15, url, action);
+        }
+
+        public void Visit(bool showPh, int timeOut, string url, Action action)
         {
             if (url.ToUpper().StartsWith("HTTPS:"))
                 throw new Exception("Request to Https protocol is not working yet.");
 
             using (_ph = new PhantomjsWrapper())
             {
-                _ph.Run(showPh, "--web-security=no", 1234, url, action);
+                _ph.Run(timeOut, showPh, "--web-security=no", 1234, url, action);
             }
         }
 

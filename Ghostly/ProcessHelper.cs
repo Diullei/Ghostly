@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ghostly
 {
-    public class ProcessHelper
+    internal class ProcessHelper
     {
         public static Process CreateAndStartProcess(bool showPh, string target, string args)
         {

@@ -11,10 +11,11 @@ namespace Ghostly
 {
     internal class PhantomjsWrapper : IDisposable
     {
-        private string _exeName;
-        private string _jsBootName;
+        private readonly string _exeName;
+        private readonly string _jsBootName;
         private Process _process;
         private HttpServer _server;
+        private int _timeOutCount = 15;
 
         public bool IsCallbackFinish { get; set; }
 
@@ -40,8 +41,10 @@ namespace Ghostly
             }
         }
 
-        public void Run(bool showPh, string args, int port, string url, Action acion)
+        public void Run(int timeOut, bool showPh, string args, int port, string url, Action acion)
         {
+            _timeOutCount = timeOut;
+
             _server = new HttpServer(acion, url, this);
             _server.Start(string.Format("http://localhost:{0}/", port));
 
@@ -67,7 +70,18 @@ namespace Ghostly
         {
             while (IsCallbackFinish)
             {
-                Thread.Sleep(500);
+                if (_timeOutCount < 0)
+                {
+                    _server.Scripts.ForEach(s =>
+                                                {
+                                                    s.Result = "# TIME OUT EXCEPTION!";
+                                                    s.Resolved = true;
+                                                });
+                    throw new Exception("TimeOut Exception.");
+                }
+
+                Thread.Sleep(1000);
+                _timeOutCount--;
             }
 
             _process.Kill();
